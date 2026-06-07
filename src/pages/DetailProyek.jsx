@@ -12,29 +12,30 @@ import {
   saveProyek,
 } from '../store'
 import { fmtIDR, hitungProyek } from '../utils'
-import {
-  Badge,
-  Card,
-  LabelRow,
-  PageFrame,
-  ProgressBar,
-  WireButton,
-  gray,
-} from '../components/WireframeShared.jsx'
-
-const fieldStyle = {
-  width: '100%',
-  minHeight: 48,
-  border: `1px solid ${gray.mid}`,
-  borderRadius: 6,
-  padding: '0 12px',
-  background: gray.bg,
-  color: gray.ink,
-  boxSizing: 'border-box',
-  fontSize: 14,
-}
+import { LabelRow, PageFrame, ProgressBar } from '../components/WireframeShared.jsx'
+import { EmptyState, Toast } from '../components/ui.jsx'
+import { componentStyles, tokens } from '../designTokens'
 
 const todayId = () => new Date().toISOString().slice(0, 10)
+
+const inputStyle = {
+  width: '100%',
+  minHeight: 50,
+  border: `1px solid ${tokens.colors.line.borderGray}`,
+  borderRadius: tokens.radius.md,
+  padding: '0 14px',
+  background: tokens.colors.surface.white,
+  color: tokens.colors.text.ink,
+  boxSizing: 'border-box',
+  fontSize: tokens.typography.body.fontSize,
+  fontFamily: tokens.typography.family,
+}
+
+const labelStyle = {
+  color: tokens.colors.text.ink,
+  fontSize: tokens.typography.cardTitle.fontSize,
+  fontWeight: tokens.typography.cardTitle.fontWeight,
+}
 
 function formatDate(value) {
   if (!value) return '-'
@@ -45,15 +46,84 @@ function formatDate(value) {
   }).format(new Date(`${value}T00:00:00`))
 }
 
+function DetailCard({ title, note, children, style }) {
+  return (
+    <section
+      style={{
+        ...componentStyles.card,
+        display: 'grid',
+        gap: tokens.spacing.md,
+        fontFamily: tokens.typography.family,
+        ...style,
+      }}
+    >
+      {(title || note) ? (
+        <div
+          style={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'baseline',
+            gap: tokens.spacing.md,
+          }}
+        >
+          {title ? (
+            <h2
+              style={{
+                margin: 0,
+                color: tokens.colors.text.ink,
+                ...tokens.typography.cardTitle,
+              }}
+            >
+              {title}
+            </h2>
+          ) : null}
+          {note ? (
+            <span
+              style={{
+                color: tokens.colors.text.coolGray,
+                ...tokens.typography.caption,
+                textAlign: 'right',
+              }}
+            >
+              {note}
+            </span>
+          ) : null}
+        </div>
+      ) : null}
+      {children}
+    </section>
+  )
+}
+
+function ActionButton({ children, onClick, variant = 'primary', disabled }) {
+  const primary = variant === 'primary'
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      disabled={disabled}
+      style={{
+        ...(primary ? componentStyles.primaryButton : componentStyles.secondaryButton),
+        width: '100%',
+        opacity: disabled ? 0.6 : 1,
+        fontFamily: tokens.typography.family,
+        fontSize: 15,
+      }}
+    >
+      {children}
+    </button>
+  )
+}
+
 function Segmented({ label, options, value, onChange }) {
   return (
-    <label style={{ display: 'grid', gap: 8 }}>
-      <span style={{ color: gray.ink, fontSize: 13, fontWeight: 800 }}>{label}</span>
+    <label style={{ display: 'grid', gap: tokens.spacing.sm }}>
+      <span style={labelStyle}>{label}</span>
       <div
         style={{
           display: 'grid',
           gridTemplateColumns: `repeat(${options.length}, 1fr)`,
-          gap: 6,
+          gap: tokens.spacing.sm,
         }}
       >
         {options.map((option) => {
@@ -65,12 +135,17 @@ function Segmented({ label, options, value, onChange }) {
               onClick={() => onChange(option)}
               style={{
                 minHeight: 42,
-                border: `1px solid ${active ? gray.gold : gray.line}`,
-                borderRadius: 6,
-                background: active ? gray.primary : gray.bg,
-                color: active ? '#fff' : gray.text,
-                fontSize: 11,
+                border: `1px solid ${
+                  active ? tokens.colors.primary.actionBlue : tokens.colors.line.borderGray
+                }`,
+                borderRadius: tokens.radius.full,
+                background: active
+                  ? tokens.colors.primary.actionBlue
+                  : tokens.colors.surface.white,
+                color: active ? tokens.colors.text.inverse : tokens.colors.text.slate,
+                fontSize: tokens.typography.caption.fontSize,
                 fontWeight: 800,
+                fontFamily: tokens.typography.family,
               }}
             >
               {option}
@@ -82,19 +157,56 @@ function Segmented({ label, options, value, onChange }) {
   )
 }
 
+function Badge({ children }) {
+  return (
+    <span
+      style={{
+        display: 'inline-flex',
+        alignItems: 'center',
+        minHeight: 26,
+        padding: '0 9px',
+        borderRadius: tokens.radius.full,
+        border: `1px solid ${tokens.colors.line.borderGray}`,
+        background: tokens.colors.surface.mistBlue,
+        color: tokens.colors.text.slate,
+        fontSize: 11,
+        fontWeight: 800,
+      }}
+    >
+      {children}
+    </span>
+  )
+}
+
 function NumberTile({ label, value, color }) {
   return (
     <div
       style={{
-        minHeight: 72,
-        padding: 10,
-        border: `1px solid ${gray.line}`,
-        borderRadius: 8,
-        background: gray.bg,
+        minHeight: 78,
+        padding: tokens.spacing.md,
+        border: `1px solid ${tokens.colors.line.borderGray}`,
+        borderRadius: tokens.radius.md,
+        background: tokens.colors.surface.mistBlue,
+        display: 'grid',
+        alignContent: 'space-between',
       }}
     >
-      <span style={{ display: 'block', color: gray.text, fontSize: 10 }}>{label}</span>
-      <strong style={{ display: 'block', marginTop: 8, fontSize: 13, color: color || gray.ink }}>
+      <span
+        style={{
+          color: tokens.colors.text.coolGray,
+          fontSize: tokens.typography.caption.fontSize,
+        }}
+      >
+        {label}
+      </span>
+      <strong
+        style={{
+          display: 'block',
+          marginTop: tokens.spacing.sm,
+          fontSize: 14,
+          color: color || tokens.colors.text.ink,
+        }}
+      >
         {fmtIDR(value)}
       </strong>
     </div>
@@ -109,25 +221,12 @@ function EmptyDetail({ onNavigate }) {
       activePage="projects"
       onNavigate={onNavigate}
     >
-      <Card title="Belum ada proyek" note="empty state">
-        <div style={{ display: 'grid', justifyItems: 'center', gap: 8, padding: 12 }}>
-          <div
-            aria-hidden="true"
-            style={{
-              width: 88,
-              height: 64,
-              border: `1px solid ${gray.mid}`,
-              borderRadius: 8,
-              background: gray.bg,
-            }}
-          />
-          <strong style={{ color: gray.ink, fontSize: 16 }}>Belum ada proyek</strong>
-          <span style={{ color: gray.text, fontSize: 12, textAlign: 'center' }}>
-            Buat proyek dulu sebelum melihat detail keuangan.
-          </span>
-        </div>
-        <WireButton onClick={() => onNavigate?.('projects')}>Ke Daftar Proyek</WireButton>
-      </Card>
+      <EmptyState
+        title="Belum ada proyek"
+        description="Buat proyek dulu sebelum melihat detail keuangan."
+        ctaLabel="Ke Daftar Proyek"
+        onCta={() => onNavigate?.('projects')}
+      />
     </PageFrame>
   )
 }
@@ -138,18 +237,18 @@ function EmptyHistory() {
       style={{
         display: 'grid',
         justifyItems: 'center',
-        gap: 6,
-        padding: 14,
-        border: `1px dashed ${gray.mid}`,
-        borderRadius: 8,
-        background: gray.bg,
+        gap: tokens.spacing.xs,
+        padding: tokens.spacing.lg,
+        border: `1px dashed ${tokens.colors.line.lineBlue}`,
+        borderRadius: tokens.radius.md,
+        background: tokens.colors.surface.mistBlue,
         textAlign: 'center',
       }}
     >
-      <strong style={{ color: gray.ink, fontSize: 13 }}>
+      <strong style={{ color: tokens.colors.text.ink, fontSize: 13 }}>
         Belum ada transaksi di proyek ini
       </strong>
-      <span style={{ color: gray.text, fontSize: 11 }}>
+      <span style={{ color: tokens.colors.text.slate, fontSize: 11 }}>
         Tap Input untuk mulai mencatat
       </span>
     </div>
@@ -167,7 +266,7 @@ function DeleteSheet({ transaksi, onCancel, onConfirm }) {
         display: 'flex',
         alignItems: 'flex-end',
         justifyContent: 'center',
-        background: 'rgba(0,0,0,0.45)',
+        background: 'rgba(15, 23, 42, 0.48)',
         zIndex: 20,
       }}
     >
@@ -176,38 +275,54 @@ function DeleteSheet({ transaksi, onCancel, onConfirm }) {
           width: '100%',
           maxWidth: 390,
           display: 'grid',
-          gap: 10,
-          padding: 16,
+          gap: tokens.spacing.md,
+          padding: tokens.spacing.lg,
           borderRadius: '16px 16px 0 0',
-          background: gray.card,
+          background: tokens.colors.surface.white,
           boxSizing: 'border-box',
+          boxShadow: tokens.shadow.raised,
+          fontFamily: tokens.typography.family,
         }}
       >
-        <h2 style={{ margin: 0, color: gray.ink, fontSize: 18 }}>
+        <h2
+          style={{
+            margin: 0,
+            color: tokens.colors.text.ink,
+            ...tokens.typography.sectionTitle,
+          }}
+        >
           Hapus transaksi ini?
         </h2>
         <div
           style={{
             display: 'grid',
-            gap: 6,
-            padding: 10,
-            border: `1px solid ${gray.line}`,
-            borderRadius: 8,
-            background: gray.bg,
+            gap: tokens.spacing.xs,
+            padding: tokens.spacing.md,
+            border: `1px solid ${tokens.colors.line.borderGray}`,
+            borderRadius: tokens.radius.md,
+            background: tokens.colors.surface.mistBlue,
             fontSize: 12,
           }}
         >
           <strong>{transaksi.kategori}</strong>
           <span>{fmtIDR(transaksi.nominal)} | {formatDate(transaksi.tanggal)}</span>
-          <span style={{ color: gray.text }}>{transaksi.catatan || 'Tanpa catatan'}</span>
+          <span style={{ color: tokens.colors.text.slate }}>
+            {transaksi.catatan || 'Tanpa catatan'}
+          </span>
         </div>
-        <WireButton onClick={onConfirm}>Ya, Hapus</WireButton>
-        <WireButton variant="secondary" onClick={onCancel}>Batal</WireButton>
-        <span style={{ color: gray.mid, fontSize: 10 }}>
-          Bottom sheet dipakai karena lebih natural untuk aksi konfirmasi di HP.
-        </span>
+        <ActionButton onClick={onConfirm}>Ya, Hapus</ActionButton>
+        <ActionButton variant="secondary" onClick={onCancel}>Batal</ActionButton>
       </section>
     </div>
+  )
+}
+
+function Field({ label, children }) {
+  return (
+    <label style={{ display: 'grid', gap: tokens.spacing.sm }}>
+      <span style={labelStyle}>{label}</span>
+      {children}
+    </label>
   )
 }
 
@@ -246,10 +361,7 @@ function EditProyek({ proyek, onCancel, onSaved, onDeleted }) {
       tanggalMulai,
       catatan: catatan.trim(),
     }
-    const nextProyek = getProyek().map((item) =>
-      item.id === proyek.id ? nextItem : item
-    )
-    saveProyek(nextProyek)
+    saveProyek(getProyek().map((item) => (item.id === proyek.id ? nextItem : item)))
     onSaved()
   }
 
@@ -271,84 +383,53 @@ function EditProyek({ proyek, onCancel, onSaved, onDeleted }) {
       activePage="projects"
       onNavigate={() => {}}
     >
-      <WireButton variant="secondary" onClick={onCancel}>
+      <ActionButton variant="secondary" onClick={onCancel}>
         {'<-'} Kembali
-      </WireButton>
+      </ActionButton>
 
-      <Card title="Data proyek" note="pre-filled">
-        <label style={{ display: 'grid', gap: 8 }}>
-          <span style={{ color: gray.ink, fontSize: 13, fontWeight: 800 }}>
-            Nama Proyek
-          </span>
-          <input value={nama} onChange={(e) => setNama(e.target.value)} style={fieldStyle} />
-        </label>
-        <Segmented
-          label="Jenis Transaksi"
-          options={JENIS_PROYEK_OPTIONS}
-          value={jenis}
-          onChange={setJenis}
-        />
-        <label style={{ display: 'grid', gap: 8 }}>
-          <span style={{ color: gray.ink, fontSize: 13, fontWeight: 800 }}>Klien</span>
-          <input value={klien} onChange={(e) => setKlien(e.target.value)} style={fieldStyle} />
-        </label>
-        <Segmented
-          label="Sumber"
-          options={SUMBER_PROYEK_OPTIONS}
-          value={sumber}
-          onChange={setSumber}
-        />
-        <label style={{ display: 'grid', gap: 8 }}>
-          <span style={{ color: gray.ink, fontSize: 13, fontWeight: 800 }}>
-            Nilai Pesanan
-          </span>
+      <DetailCard title="Data proyek" note="pre-filled">
+        <Field label="Nama Proyek">
+          <input value={nama} onChange={(e) => setNama(e.target.value)} style={inputStyle} />
+        </Field>
+        <Segmented label="Jenis Transaksi" options={JENIS_PROYEK_OPTIONS} value={jenis} onChange={setJenis} />
+        <Field label="Klien">
+          <input value={klien} onChange={(e) => setKlien(e.target.value)} style={inputStyle} />
+        </Field>
+        <Segmented label="Sumber" options={SUMBER_PROYEK_OPTIONS} value={sumber} onChange={setSumber} />
+        <Field label="Nilai Pesanan">
           <input
             type="number"
             inputMode="numeric"
             value={nilaiPesanan}
             onChange={(e) => setNilaiPesanan(e.target.value)}
-            style={fieldStyle}
+            style={inputStyle}
           />
-          <span style={{ color: gray.mid, fontSize: 10 }}>
+          <span style={{ color: tokens.colors.text.coolGray, fontSize: 11 }}>
             Terbaca: {fmtIDR(Number(nilaiPesanan))}
           </span>
-        </label>
-        <Segmented
-          label="Status"
-          options={STATUS_PROYEK_OPTIONS}
-          value={status}
-          onChange={setStatus}
-        />
-        <label style={{ display: 'grid', gap: 8 }}>
-          <span style={{ color: gray.ink, fontSize: 13, fontWeight: 800 }}>
-            Tanggal Mulai
-          </span>
-          <input
-            type="date"
-            value={tanggalMulai}
-            onChange={(e) => setTanggalMulai(e.target.value)}
-            style={fieldStyle}
-          />
-        </label>
-        <label style={{ display: 'grid', gap: 8 }}>
-          <span style={{ color: gray.ink, fontSize: 13, fontWeight: 800 }}>Catatan</span>
+        </Field>
+        <Segmented label="Status" options={STATUS_PROYEK_OPTIONS} value={status} onChange={setStatus} />
+        <Field label="Tanggal Mulai">
+          <input type="date" value={tanggalMulai} onChange={(e) => setTanggalMulai(e.target.value)} style={inputStyle} />
+        </Field>
+        <Field label="Catatan">
           <textarea
             value={catatan}
             onChange={(e) => setCatatan(e.target.value)}
             rows={3}
-            style={{ ...fieldStyle, minHeight: 76, padding: 12, resize: 'none' }}
+            style={{ ...inputStyle, minHeight: 76, padding: 12, resize: 'none' }}
           />
-        </label>
-      </Card>
+        </Field>
+      </DetailCard>
 
       {error ? (
         <div
           style={{
-            padding: 10,
-            border: `1px solid ${gray.ink}`,
-            borderRadius: 8,
-            background: gray.card,
-            color: gray.ink,
+            padding: tokens.spacing.md,
+            border: `1px solid ${tokens.colors.danger.border}`,
+            borderRadius: tokens.radius.md,
+            background: tokens.colors.danger.tint,
+            color: tokens.colors.semantic.error,
             fontSize: 12,
             fontWeight: 800,
           }}
@@ -357,30 +438,31 @@ function EditProyek({ proyek, onCancel, onSaved, onDeleted }) {
         </div>
       ) : null}
 
-      <WireButton onClick={handleSave}>Simpan Perubahan</WireButton>
+      <ActionButton onClick={handleSave}>Simpan Perubahan</ActionButton>
 
-      <Card title="Zona bahaya" note="konfirmasi 2 langkah">
-        <div
-          style={{
-            display: 'grid',
-            gap: 8,
-            padding: 10,
-            border: `1px solid ${gray.danger}`,
-            borderRadius: 8,
-            background: '#fff1f2',
-          }}
-        >
-          <strong style={{ color: gray.danger, fontSize: 13 }}>Hapus Proyek</strong>
-          <span style={{ color: gray.text, fontSize: 12 }}>
+      <DetailCard
+        title="Zona bahaya"
+        note="konfirmasi 2 langkah"
+        style={{
+          background: tokens.colors.danger.tint,
+          borderColor: tokens.colors.danger.border,
+          boxShadow: 'none',
+        }}
+      >
+        <div style={{ display: 'grid', gap: tokens.spacing.sm }}>
+          <strong style={{ color: tokens.colors.semantic.error, fontSize: 13 }}>
+            Hapus Proyek
+          </strong>
+          <span style={{ color: tokens.colors.text.slate, fontSize: 12 }}>
             Semua transaksi terkait proyek ini juga akan terhapus permanen.
           </span>
-          <strong style={{ color: gray.ink, fontSize: 12 }}>{proyek.nama}</strong>
+          <strong style={{ color: tokens.colors.text.ink, fontSize: 12 }}>{proyek.nama}</strong>
           {deleteOpen ? (
             <input
               value={deleteText}
               onChange={(event) => setDeleteText(event.target.value)}
               placeholder='Ketik "HAPUS" untuk konfirmasi'
-              style={fieldStyle}
+              style={{ ...inputStyle, borderColor: tokens.colors.danger.border }}
             />
           ) : null}
         </div>
@@ -390,18 +472,25 @@ function EditProyek({ proyek, onCancel, onSaved, onDeleted }) {
           disabled={deleteOpen && deleteText !== 'HAPUS'}
           style={{
             width: '100%',
-            minHeight: 48,
-            borderRadius: 8,
-            border: `1px solid ${gray.danger}`,
-            background: deleteOpen && deleteText !== 'HAPUS' ? gray.line : gray.card,
-            color: deleteOpen && deleteText !== 'HAPUS' ? gray.mid : gray.danger,
+            minHeight: 50,
+            borderRadius: tokens.radius.md,
+            border: `1px solid ${tokens.colors.semantic.error}`,
+            background:
+              deleteOpen && deleteText !== 'HAPUS'
+                ? tokens.colors.danger.border
+                : tokens.colors.surface.white,
+            color:
+              deleteOpen && deleteText !== 'HAPUS'
+                ? tokens.colors.text.coolGray
+                : tokens.colors.semantic.error,
             fontSize: 14,
             fontWeight: 900,
+            fontFamily: tokens.typography.family,
           }}
         >
           {deleteOpen ? 'Konfirmasi Hapus Proyek' : 'Hapus Proyek'}
         </button>
-      </Card>
+      </DetailCard>
     </PageFrame>
   )
 }
@@ -434,9 +523,7 @@ export default function DetailProyek({ proyekId, onNavigate }) {
     setPotOpsDraft(String(currentProyek?.potOpsPerush || 0))
   }, [currentProyek?.id, currentProyek?.potOpsPerush])
 
-  const summary = currentProyek
-    ? hitungProyek(currentProyek, transaksi)
-    : null
+  const summary = currentProyek ? hitungProyek(currentProyek, transaksi) : null
 
   const transaksiProyek = transaksi
     .filter((item) => item.proyekId === currentProyek?.id)
@@ -449,10 +536,11 @@ export default function DetailProyek({ proyekId, onNavigate }) {
 
   const savePotOps = () => {
     const nextValue = Math.max(0, Number(potOpsDraft) || 0)
-    const nextProyek = getProyek().map((item) =>
-      item.id === currentProyek.id ? { ...item, potOpsPerush: nextValue } : item
+    saveProyek(
+      getProyek().map((item) =>
+        item.id === currentProyek.id ? { ...item, potOpsPerush: nextValue } : item
+      )
     )
-    saveProyek(nextProyek)
     reload()
     showToast('Potongan ops tersimpan')
   }
@@ -464,9 +552,7 @@ export default function DetailProyek({ proyekId, onNavigate }) {
     showToast('Transaksi dihapus')
   }
 
-  if (!currentProyek) {
-    return <EmptyDetail onNavigate={onNavigate} />
-  }
+  if (!currentProyek) return <EmptyDetail onNavigate={onNavigate} />
 
   if (editMode) {
     return (
@@ -495,40 +581,42 @@ export default function DetailProyek({ proyekId, onNavigate }) {
       activePage="projects"
       onNavigate={onNavigate}
     >
-      <WireButton variant="secondary" onClick={() => onNavigate?.('projects')}>
+      <ActionButton variant="secondary" onClick={() => onNavigate?.('projects')}>
         Kembali ke Daftar Proyek
-      </WireButton>
+      </ActionButton>
 
-      <Card title="Header proyek" note="identitas ringkas">
+      <DetailCard title="Header proyek" note="identitas ringkas">
         <LabelRow label="Jenis" value={<Badge>{currentProyek.jenis}</Badge>} />
         <LabelRow label="Klien" value={currentProyek.klien || '-'} />
         <LabelRow label="Sumber" value={currentProyek.sumber || '-'} />
         <LabelRow label="Status" value={<Badge>{currentProyek.status}</Badge>} />
         <LabelRow label="Tanggal mulai" value={formatDate(currentProyek.tanggalMulai)} />
         {currentProyek.catatan ? (
-          <span style={{ color: gray.text, fontSize: 11 }}>{currentProyek.catatan}</span>
+          <span style={{ color: tokens.colors.text.slate, fontSize: 12 }}>
+            {currentProyek.catatan}
+          </span>
         ) : null}
-        <span style={{ color: gray.mid, fontSize: 10 }}>
+        <span style={{ color: tokens.colors.text.coolGray, fontSize: 11 }}>
           Regular = transaksi sekolah berulang. Project = kerja khusus non-sekolah.
         </span>
-      </Card>
+      </DetailCard>
 
-      <Card title="Ringkasan keuangan" note="computed dari transaksi">
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
-          <NumberTile label="Total Dana Talangan" value={summary.totalModal} />
+      <DetailCard title="Ringkasan keuangan" note="computed dari transaksi">
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: tokens.spacing.sm }}>
+          <NumberTile label="Total Dana Talangan" value={summary.totalModal} color={tokens.colors.primary.corporateBlue} />
           <NumberTile label="Total Ops Proyek" value={summary.totalOps} />
-          <NumberTile label="Total Masuk" value={summary.totalMasuk} color={gray.success} />
+          <NumberTile label="Total Masuk" value={summary.totalMasuk} color={tokens.colors.semantic.success} />
           <NumberTile label="Potongan Ops Perush" value={summary.potOps} />
           <NumberTile
             label="Profit Bersih"
             value={summary.profitBersih}
-            color={summary.profitBersih >= 0 ? gray.success : gray.danger}
+            color={summary.profitBersih >= 0 ? tokens.colors.semantic.success : tokens.colors.semantic.error}
           />
           <NumberTile label="Sisa Piutang" value={summary.sisaPiutang} />
         </div>
-      </Card>
+      </DetailCard>
 
-      <Card title="Potongan Ops Perusahaan" note="manual, autosave on blur">
+      <DetailCard title="Potongan Ops Perusahaan" note="manual, autosave on blur">
         <input
           type="number"
           inputMode="numeric"
@@ -536,29 +624,24 @@ export default function DetailProyek({ proyekId, onNavigate }) {
           onChange={(event) => setPotOpsDraft(event.target.value)}
           onBlur={savePotOps}
           aria-label="Potongan Ops Perusahaan manual"
-          style={{
-            ...fieldStyle,
-            fontSize: 16,
-            fontWeight: 800,
-          }}
+          style={{ ...inputStyle, fontSize: 16, fontWeight: 800 }}
         />
-        <span style={{ color: gray.mid, fontSize: 10 }}>
+        <span style={{ color: tokens.colors.text.coolGray, fontSize: 11 }}>
           Jangan otomatis persentase. Pengelola isi manual.
         </span>
-      </Card>
+      </DetailCard>
 
-      <Card title="Progress pembayaran" note="Total Masuk / Nilai Pesanan">
+      <DetailCard title="Progress pembayaran" note="Total Masuk / Nilai Pesanan">
         <ProgressBar
           value={summary.progressPct}
-          color={summary.progressPct >= 100 ? gray.success : gray.gold}
+          color={summary.progressPct >= 100 ? tokens.colors.semantic.success : tokens.colors.primary.actionBlue}
         />
-        <strong style={{ color: gray.ink, fontSize: 13 }}>
-          {fmtIDR(summary.totalMasuk)} dari {fmtIDR(currentProyek.nilaiPesanan)} (
-          {summary.progressPct}%)
+        <strong style={{ color: tokens.colors.text.ink, fontSize: 13 }}>
+          {fmtIDR(summary.totalMasuk)} dari {fmtIDR(currentProyek.nilaiPesanan)} ({summary.progressPct}%)
         </strong>
-      </Card>
+      </DetailCard>
 
-      <Card title="Histori transaksi" note="terbaru di atas">
+      <DetailCard title="Histori transaksi" note="terbaru di atas">
         {transaksiProyek.length > 0 ? (
           transaksiProyek.map((item) => (
             <div
@@ -566,16 +649,16 @@ export default function DetailProyek({ proyekId, onNavigate }) {
               style={{
                 display: 'grid',
                 gridTemplateColumns: '1fr auto',
-                gap: 8,
-                padding: 10,
-                border: `1px solid ${gray.line}`,
-                borderRadius: 8,
-                background: gray.bg,
+                gap: tokens.spacing.sm,
+                padding: tokens.spacing.md,
+                border: `1px solid ${tokens.colors.line.borderGray}`,
+                borderRadius: tokens.radius.md,
+                background: tokens.colors.surface.mistBlue,
               }}
             >
               <div>
                 <strong style={{ display: 'block', fontSize: 12 }}>{item.kategori}</strong>
-                <span style={{ color: gray.text, fontSize: 11 }}>
+                <span style={{ color: tokens.colors.text.slate, fontSize: 11 }}>
                   {formatDate(item.tanggal)} | {item.catatan || 'Tanpa catatan'}
                 </span>
               </div>
@@ -584,7 +667,10 @@ export default function DetailProyek({ proyekId, onNavigate }) {
                   style={{
                     display: 'block',
                     fontSize: 12,
-                    color: item.arah === 'masuk' ? gray.success : gray.danger,
+                    color:
+                      item.arah === 'masuk'
+                        ? tokens.colors.semantic.success
+                        : tokens.colors.semantic.error,
                   }}
                 >
                   {item.arah === 'masuk' ? '+' : '-'} {fmtIDR(item.nominal)}
@@ -594,14 +680,15 @@ export default function DetailProyek({ proyekId, onNavigate }) {
                   onClick={() => setDeleteTarget(item)}
                   style={{
                     marginTop: 6,
-                    minHeight: 48,
+                    minHeight: 44,
                     minWidth: 64,
-                    border: `1px solid ${gray.mid}`,
-                    borderRadius: 6,
-                    background: gray.card,
-                    color: gray.danger,
-                    fontSize: 10,
-                    fontWeight: 700,
+                    border: `1px solid ${tokens.colors.danger.border}`,
+                    borderRadius: tokens.radius.sm,
+                    background: tokens.colors.surface.white,
+                    color: tokens.colors.semantic.error,
+                    fontSize: 11,
+                    fontWeight: 800,
+                    fontFamily: tokens.typography.family,
                   }}
                 >
                   Hapus
@@ -612,35 +699,13 @@ export default function DetailProyek({ proyekId, onNavigate }) {
         ) : (
           <EmptyHistory />
         )}
-      </Card>
+      </DetailCard>
 
-      <WireButton variant="secondary" onClick={() => setEditMode(true)}>
+      <ActionButton variant="secondary" onClick={() => setEditMode(true)}>
         Edit Proyek
-      </WireButton>
+      </ActionButton>
 
-      {toast ? (
-        <div
-          style={{
-            position: 'fixed',
-            left: '50%',
-            bottom: 74,
-            transform: 'translateX(-50%)',
-            width: 'calc(100% - 32px)',
-            maxWidth: 358,
-            minHeight: 48,
-            display: 'grid',
-            placeItems: 'center',
-            borderRadius: 8,
-            background: gray.primary,
-            color: '#fff',
-            fontSize: 13,
-            fontWeight: 800,
-            zIndex: 30,
-          }}
-        >
-          {toast}
-        </div>
-      ) : null}
+      <Toast visible={Boolean(toast)}>{toast || 'Perubahan tersimpan'}</Toast>
 
       <DeleteSheet
         transaksi={deleteTarget}
