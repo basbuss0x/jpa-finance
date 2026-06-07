@@ -22,6 +22,19 @@ Kategori yang dipakai:
 
 ---
 
+## [Unreleased] — v1.2.0
+
+### Planned
+- UI redesign berdasarkan DESIGN_BRIEF.md v1.1
+- Quick amount chips di Input Cepat
+- Toast component
+- Contextual status banner di Dashboard
+- Insight card dengan priority logic
+- Empty state per filter di Daftar Proyek
+- Export Excel (backlog)
+
+---
+
 ## [1.1.0] — 5 Juni 2026
 
 > Phase 1 build fungsional + Visual QA + UX polish awal.
