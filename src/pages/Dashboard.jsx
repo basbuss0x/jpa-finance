@@ -7,16 +7,11 @@ import {
   STATUS_PROYEK,
   TIPE_TRANSAKSI,
 } from '../constants'
-import { getProyek, getTransaksi } from '../store'
+import { getProyek, getSettings, getTransaksi } from '../store'
 import { fmtIDR, hitungProyek } from '../utils'
-import {
-  Card,
-  LabelRow,
-  PageFrame,
-  ProgressBar,
-  WireButton,
-  gray,
-} from '../components/WireframeShared.jsx'
+import { LabelRow, PageFrame, ProgressBar } from '../components/WireframeShared.jsx'
+import { EmptyState, InsightCard, StatusBanner } from '../components/ui.jsx'
+import { componentStyles, tokens } from '../designTokens'
 
 const monthLabels = [
   'Jan',
@@ -36,23 +31,90 @@ const monthLabels = [
 const sumNominal = (items) =>
   items.reduce((sum, item) => sum + (Number(item.nominal) || 0), 0)
 
+const cardTitleStyle = {
+  margin: 0,
+  color: tokens.colors.text.ink,
+  fontFamily: tokens.typography.family,
+  ...tokens.typography.cardTitle,
+}
+
+function DashboardCard({ title, note, children }) {
+  return (
+    <section
+      style={{
+        ...componentStyles.card,
+        display: 'grid',
+        gap: tokens.spacing.md,
+        fontFamily: tokens.typography.family,
+      }}
+    >
+      <div
+        style={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'baseline',
+          gap: tokens.spacing.md,
+        }}
+      >
+        <h2 style={cardTitleStyle}>{title}</h2>
+        {note ? (
+          <span
+            style={{
+              color: tokens.colors.text.coolGray,
+              ...tokens.typography.caption,
+            }}
+          >
+            {note}
+          </span>
+        ) : null}
+      </div>
+      {children}
+    </section>
+  )
+}
+
 function KpiTile({ label, value, note, color }) {
   return (
     <div
       style={{
-        minHeight: 78,
-        padding: 10,
-        border: `1px solid ${gray.line}`,
-        borderRadius: 8,
-        background: gray.bg,
+        minHeight: 96,
+        padding: tokens.spacing.md,
+        border: `1px solid ${tokens.colors.line.borderGray}`,
+        borderRadius: tokens.radius.md,
+        background: tokens.colors.surface.mistBlue,
+        display: 'grid',
+        alignContent: 'space-between',
+        gap: tokens.spacing.sm,
       }}
     >
-      <span style={{ display: 'block', color: gray.text, fontSize: 10 }}>{label}</span>
-      <strong style={{ display: 'block', marginTop: 8, fontSize: 14, color: color || gray.ink }}>
+      <span
+        style={{
+          color: tokens.colors.text.coolGray,
+          fontFamily: tokens.typography.family,
+          ...tokens.typography.caption,
+        }}
+      >
+        {label}
+      </span>
+      <strong
+        style={{
+          color: color || tokens.colors.text.ink,
+          fontFamily: tokens.typography.family,
+          fontSize: 16,
+          fontWeight: 800,
+          lineHeight: 1.15,
+        }}
+      >
         {fmtIDR(value)}
       </strong>
       {note ? (
-        <span style={{ display: 'block', marginTop: 6, color: gray.mid, fontSize: 10 }}>
+        <span
+          style={{
+            color: tokens.colors.text.coolGray,
+            fontFamily: tokens.typography.family,
+            ...tokens.typography.caption,
+          }}
+        >
           {note}
         </span>
       ) : null}
@@ -71,13 +133,13 @@ function MiniBars({ data }) {
       style={{
         display: 'grid',
         gridTemplateColumns: 'repeat(6, 1fr)',
-        gap: 8,
+        gap: tokens.spacing.sm,
         alignItems: 'end',
         minHeight: 132,
-        padding: 10,
-        border: `1px dashed ${gray.line}`,
-        borderRadius: 8,
-        background: gray.bg,
+        padding: tokens.spacing.md,
+        border: `1px dashed ${tokens.colors.line.lineBlue}`,
+        borderRadius: tokens.radius.md,
+        background: tokens.colors.surface.mistBlue,
       }}
     >
       {data.map((item) => {
@@ -87,18 +149,32 @@ function MiniBars({ data }) {
         return (
           <div key={item.month} style={{ display: 'grid', gap: 4, justifyItems: 'center' }}>
             <div style={{ display: 'flex', gap: 3, alignItems: 'end', height: 82 }}>
-              <div style={{ width: 8, height: masukHeight, background: gray.success }} />
+              <div
+                style={{
+                  width: 8,
+                  height: masukHeight,
+                  borderRadius: 3,
+                  background: tokens.colors.semantic.success,
+                }}
+              />
               <div
                 style={{
                   width: 8,
                   height: keluarHeight,
-                  background: gray.danger,
-                  border: `1px solid ${gray.danger}`,
-                  boxSizing: 'border-box',
+                  borderRadius: 3,
+                  background: tokens.colors.semantic.error,
                 }}
               />
             </div>
-            <span style={{ color: gray.text, fontSize: 10 }}>{item.label}</span>
+            <span
+              style={{
+                color: tokens.colors.text.coolGray,
+                fontFamily: tokens.typography.family,
+                fontSize: 10,
+              }}
+            >
+              {item.label}
+            </span>
           </div>
         )
       })}
@@ -106,42 +182,169 @@ function MiniBars({ data }) {
   )
 }
 
-function EmptyDashboard({ onNavigate }) {
+function ProjectTypeTile({ title, count, value, description }) {
   return (
-    <Card title="Belum ada data keuangan" note="empty state">
-      <div style={{ display: 'grid', justifyItems: 'center', gap: 8, padding: 12 }}>
-        <div
-          aria-hidden="true"
-          style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(3, 18px)',
-            gap: 8,
-            alignItems: 'end',
-            height: 78,
-          }}
-        >
-          <span style={{ height: 28, background: gray.line, border: `1px solid ${gray.mid}` }} />
-          <span style={{ height: 52, background: gray.line, border: `1px solid ${gray.mid}` }} />
-          <span style={{ height: 40, background: gray.line, border: `1px solid ${gray.mid}` }} />
-        </div>
-        <strong style={{ color: gray.ink, fontSize: 16 }}>Belum ada data keuangan</strong>
-        <span style={{ color: gray.text, fontSize: 12, textAlign: 'center' }}>
-          Tambah proyek dan mulai catat transaksi
-        </span>
-      </div>
-      <WireButton onClick={() => onNavigate?.('input')}>Mulai Catat</WireButton>
-    </Card>
+    <div
+      style={{
+        display: 'grid',
+        gap: tokens.spacing.sm,
+        padding: tokens.spacing.md,
+        border: `1px solid ${tokens.colors.line.borderGray}`,
+        borderRadius: tokens.radius.md,
+        background: tokens.colors.surface.mistBlue,
+      }}
+    >
+      <strong style={{ color: tokens.colors.text.ink, fontSize: 15 }}>{title}</strong>
+      <span
+        style={{
+          color: tokens.colors.text.slate,
+          fontFamily: tokens.typography.family,
+          ...tokens.typography.caption,
+        }}
+      >
+        {count} {title} | {description}
+      </span>
+      <strong style={{ color: tokens.colors.text.ink, fontSize: 14 }}>{fmtIDR(value)}</strong>
+    </div>
   )
+}
+
+function getProjectTalangan(project, transaksi) {
+  const tx = transaksi.filter((item) => item.proyekId === project.id)
+  const modal = sumNominal(tx.filter((item) => item.tipe === TIPE_TRANSAKSI.modal))
+  const pengembalian = sumNominal(
+    tx.filter((item) => item.tipe === TIPE_TRANSAKSI.pengembalian)
+  )
+  return Math.max(0, modal - pengembalian)
+}
+
+function getStatusBannerData({
+  labaRugi,
+  totalPemasukan,
+  totalPengeluaran,
+  hasActiveProjectTalangan,
+}) {
+  if (labaRugi > 0 && totalPemasukan > 0) {
+    return {
+      label: 'Keuangan Sehat',
+      color: tokens.colors.semantic.success,
+      description: 'Pemasukan lebih besar dari pengeluaran periode ini.',
+    }
+  }
+
+  if (labaRugi < 0 && hasActiveProjectTalangan) {
+    return {
+      label: 'Arus Kas Negatif',
+      color: tokens.colors.semantic.warning,
+      description: 'Pengeluaran lebih besar dari pemasukan. Dana talangan sedang berjalan.',
+    }
+  }
+
+  if (labaRugi < 0) {
+    return {
+      label: 'Keuangan Defisit',
+      color: tokens.colors.semantic.error,
+      description: 'Pengeluaran melebihi pemasukan tanpa proyek aktif berjalan.',
+    }
+  }
+
+  if (labaRugi === 0 && totalPemasukan === 0 && totalPengeluaran === 0) {
+    return {
+      label: 'Belum Ada Data',
+      color: tokens.colors.text.coolGray,
+      description: 'Mulai catat transaksi pertama untuk melihat kondisi keuangan.',
+    }
+  }
+
+  return {
+    label: 'Impas',
+    color: tokens.colors.primary.corporateBlue,
+    description: 'Pemasukan dan pengeluaran seimbang periode ini.',
+  }
+}
+
+function daysSince(dateValue) {
+  if (!dateValue) return null
+  const then = new Date(dateValue)
+  if (Number.isNaN(then.getTime())) return null
+  return Math.floor((Date.now() - then.getTime()) / 86_400_000)
+}
+
+function getInsight({
+  proyek,
+  transaksi,
+  activeProjectsWithTalangan,
+  danaBeredar,
+  opsByCategory,
+  settings,
+  onNavigate,
+}) {
+  const lastBackupDays = daysSince(settings.lastBackup)
+  if (!settings.lastBackup) {
+    return {
+      message: 'Kamu belum pernah backup data. Export backup sekarang untuk keamanan.',
+      ctaLabel: 'Backup Sekarang ->',
+      onCta: () => onNavigate?.('settings'),
+    }
+  }
+
+  if (lastBackupDays !== null && lastBackupDays > 7) {
+    return {
+      message: `Backup terakhir ${lastBackupDays} hari lalu. Disarankan backup rutin setiap minggu.`,
+      ctaLabel: 'Backup Sekarang ->',
+      onCta: () => onNavigate?.('settings'),
+    }
+  }
+
+  const unpaidProjects = proyek
+    .map((item) => ({ ...item, summary: hitungProyek(item, transaksi) }))
+    .filter((item) => item.summary.sisaPiutang > 0)
+  if (unpaidProjects.length > 0) {
+    return {
+      message: `Ada ${unpaidProjects.length} proyek dengan pembayaran belum lunas.`,
+      ctaLabel: 'Lihat Proyek ->',
+      onCta: () => onNavigate?.('projects'),
+    }
+  }
+
+  if (danaBeredar > 0) {
+    return {
+      message: `Dana talangan ${fmtIDR(danaBeredar)} masih beredar di ${activeProjectsWithTalangan.length} proyek aktif.`,
+    }
+  }
+
+  const largestCategory = [...opsByCategory].sort((a, b) => b.total - a.total)[0]
+  if (largestCategory?.total > 0) {
+    return {
+      message: `Pengeluaran terbesar periode ini: ${largestCategory.kategori} sebesar ${fmtIDR(largestCategory.total)}.`,
+    }
+  }
+
+  const today = new Date().toISOString().slice(0, 10)
+  const hasTodayTx = transaksi.some((item) => item.tanggal === today)
+  if (!hasTodayTx) {
+    return {
+      message: 'Belum ada transaksi hari ini. Tap Input untuk mulai mencatat.',
+      ctaLabel: 'Input Sekarang ->',
+      onCta: () => onNavigate?.('input'),
+    }
+  }
+
+  return {
+    message: 'Semua data tercatat. Pantau terus kondisi keuangan perusahaan.',
+  }
 }
 
 export default function Dashboard({ onNavigate }) {
   const [proyek, setProyek] = useState([])
   const [transaksi, setTransaksi] = useState([])
+  const [settings, setSettings] = useState({})
   const [year, setYear] = useState(String(new Date().getFullYear()))
 
   useEffect(() => {
     setProyek(getProyek())
     setTransaksi(getTransaksi())
+    setSettings(getSettings())
   }, [])
 
   const yearOptions = useMemo(() => {
@@ -151,11 +354,14 @@ export default function Dashboard({ onNavigate }) {
     return Array.from(new Set([String(new Date().getFullYear()), ...fromTx])).sort()
   }, [transaksi])
 
+  const transaksiPeriode = transaksi.filter((item) =>
+    String(item.tanggal || '').startsWith(year)
+  )
   const totalPemasukan = sumNominal(
-    transaksi.filter((item) => item.arah === ARAH_TRANSAKSI.masuk)
+    transaksiPeriode.filter((item) => item.arah === ARAH_TRANSAKSI.masuk)
   )
   const totalPengeluaran = sumNominal(
-    transaksi.filter((item) => item.arah === ARAH_TRANSAKSI.keluar)
+    transaksiPeriode.filter((item) => item.arah === ARAH_TRANSAKSI.keluar)
   )
   const labaRugi = totalPemasukan - totalPengeluaran
   const totalDanaTalangan = sumNominal(
@@ -165,13 +371,6 @@ export default function Dashboard({ onNavigate }) {
     transaksi.filter((item) => item.tipe === TIPE_TRANSAKSI.pengembalian)
   )
   const danaBeredar = totalDanaTalangan - totalPengembalian
-  const kondisi = labaRugi > 0 ? 'UNTUNG' : labaRugi < 0 ? 'RUGI' : 'STAGNAN'
-  const kondisiColor =
-    kondisi === 'UNTUNG'
-      ? gray.success
-      : kondisi === 'RUGI'
-        ? gray.danger
-        : gray.warning
   const margin = totalPemasukan > 0 ? (labaRugi / totalPemasukan) * 100 : 0
 
   const monthlyData = monthLabels.map((label, index) => {
@@ -188,15 +387,17 @@ export default function Dashboard({ onNavigate }) {
   })
 
   const visibleMonthlyData = monthlyData.filter((item) => item.masuk || item.keluar)
-  const chartData = visibleMonthlyData.length > 0 ? visibleMonthlyData.slice(-6) : monthlyData.slice(0, 6)
+  const chartData = visibleMonthlyData.slice(-6)
 
   const activeProjects = proyek
     .filter((item) => item.status === STATUS_PROYEK.aktif)
     .map((item) => ({
       ...item,
       summary: hitungProyek(item, transaksi),
+      talangan: getProjectTalangan(item, transaksi),
     }))
     .sort((a, b) => b.summary.profitBersih - a.summary.profitBersih)
+  const activeProjectsWithTalangan = activeProjects.filter((item) => item.talangan > 0)
 
   const regularProjects = proyek.filter((item) => item.jenis === JENIS_PROYEK.regular)
   const projectProjects = proyek.filter((item) => item.jenis === JENIS_PROYEK.project)
@@ -209,7 +410,7 @@ export default function Dashboard({ onNavigate }) {
     0
   )
 
-  const opsPerusahaanTx = transaksi.filter(
+  const opsPerusahaanTx = transaksiPeriode.filter(
     (item) =>
       item.proyekId === PROYEK_UMUM_ID ||
       item.tipe === TIPE_TRANSAKSI.opsPerusahaan
@@ -221,105 +422,125 @@ export default function Dashboard({ onNavigate }) {
     kategori,
     total: sumNominal(opsPerusahaanTx.filter((item) => item.kategori === kategori)),
   }))
+  const largestOpsCategory = [...opsByCategory].sort((a, b) => b.total - a.total)[0]
 
   const hasFinancialData = proyek.length > 0 || transaksi.length > 0
+  const statusBanner = getStatusBannerData({
+    labaRugi,
+    totalPemasukan,
+    totalPengeluaran,
+    hasActiveProjectTalangan: activeProjectsWithTalangan.length > 0,
+  })
+  const insight = getInsight({
+    proyek,
+    transaksi,
+    activeProjectsWithTalangan,
+    danaBeredar,
+    opsByCategory,
+    settings,
+    onNavigate,
+  })
 
   return (
     <PageFrame
-      title="Dashboard Global"
-      subtitle="Ringkasan kondisi keuangan perusahaan."
+      title="Dashboard"
+      subtitle="Ringkasan keuangan perusahaan"
       activePage="dashboard"
       onNavigate={onNavigate}
     >
-      {!hasFinancialData ? <EmptyDashboard onNavigate={onNavigate} /> : null}
+      {!hasFinancialData ? (
+        <EmptyState
+          title="Belum ada data keuangan"
+          description="Tambah proyek dan mulai catat transaksi"
+          ctaLabel="Mulai Catat"
+          onCta={() => onNavigate?.('input')}
+        />
+      ) : null}
 
-      <Card title="Kondisi perusahaan" note="banner besar">
-        <div
-          style={{
-            display: 'grid',
-            gap: 8,
-            minHeight: 92,
-            padding: 14,
-            border: `2px solid ${kondisiColor}`,
-            borderRadius: 8,
-            background: gray.card,
-          }}
-        >
-          <span style={{ color: gray.mid, fontSize: 11 }}>Status computed</span>
-          <strong style={{ color: kondisiColor, fontSize: 28 }}>{kondisi}</strong>
-          <span style={{ color: gray.text, fontSize: 12 }}>
-            Margin {margin.toFixed(1)}%
-          </span>
+      <StatusBanner
+        label={statusBanner.label}
+        description={`${statusBanner.description} Margin ${margin.toFixed(1)}%.`}
+        color={statusBanner.color}
+      />
+
+      <DashboardCard title="KPI utama" note="Periode & semua data">
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: tokens.spacing.sm }}>
+          <KpiTile
+            label="Total Pemasukan"
+            value={totalPemasukan}
+            note={`Periode ${year}`}
+            color={tokens.colors.semantic.success}
+          />
+          <KpiTile
+            label="Total Pengeluaran"
+            value={totalPengeluaran}
+            note={`Periode ${year}`}
+            color={tokens.colors.semantic.error}
+          />
+          <KpiTile
+            label="Laba/Rugi"
+            value={labaRugi}
+            note={`Periode ${year}`}
+            color={
+              labaRugi >= 0 ? tokens.colors.semantic.success : tokens.colors.semantic.error
+            }
+          />
+          <KpiTile
+            label="Dana Talangan Beredar"
+            value={danaBeredar}
+            note="Semua periode"
+            color={tokens.colors.primary.corporateBlue}
+          />
         </div>
-      </Card>
+      </DashboardCard>
 
-      <Card title="KPI utama" note="4 kartu ringkas">
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
-          <KpiTile label="Total Pemasukan" value={totalPemasukan} note={`Periode ${year}`} color={gray.success} />
-          <KpiTile label="Total Pengeluaran" value={totalPengeluaran} note={`Periode ${year}`} color={gray.danger} />
-          <KpiTile label="Laba/Rugi" value={labaRugi} note={`Periode ${year}`} color={labaRugi >= 0 ? gray.success : gray.danger} />
-          <KpiTile label="Dana Talangan Beredar" value={danaBeredar} note="Semua periode" color={gray.warning} />
+      <DashboardCard title="Pembagian jenis transaksi" note="Project vs Regular">
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: tokens.spacing.sm }}>
+          <ProjectTypeTile
+            title="Regular"
+            count={regularProjects.length}
+            value={regularValue}
+            description="buku, map raport, supplies"
+          />
+          <ProjectTypeTile
+            title="Project"
+            count={projectProjects.length}
+            value={projectValue}
+            description="CCTV, aplikasi, meubelair"
+          />
         </div>
-      </Card>
+      </DashboardCard>
 
-      <Card title="Pembagian jenis transaksi" note="Project vs Regular">
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
-          <div
-            style={{
-              display: 'grid',
-              gap: 8,
-              padding: 10,
-              border: `1px solid ${gray.line}`,
-              borderRadius: 8,
-              background: gray.bg,
-            }}
-          >
-            <strong style={{ color: gray.ink, fontSize: 14 }}>Regular</strong>
-            <span style={{ color: gray.text, fontSize: 11 }}>
-              {regularProjects.length} Regular | buku, map raport, supplies.
-            </span>
-            <strong style={{ color: gray.ink, fontSize: 13 }}>{fmtIDR(regularValue)}</strong>
-          </div>
-          <div
-            style={{
-              display: 'grid',
-              gap: 8,
-              padding: 10,
-              border: `1px solid ${gray.line}`,
-              borderRadius: 8,
-              background: gray.bg,
-            }}
-          >
-            <strong style={{ color: gray.ink, fontSize: 14 }}>Project</strong>
-            <span style={{ color: gray.text, fontSize: 11 }}>
-              {projectProjects.length} Project | CCTV, aplikasi, meubelair.
-            </span>
-            <strong style={{ color: gray.ink, fontSize: 13 }}>{fmtIDR(projectValue)}</strong>
-          </div>
-        </div>
-      </Card>
-
-      <Card title="Grafik arus kas bulanan" note="Masuk vs Keluar">
+      <DashboardCard title="Arus Kas Bulanan" note="Masuk vs Keluar">
         <div
           style={{
             display: 'grid',
             gridTemplateColumns: '1fr auto',
-            gap: 10,
+            gap: tokens.spacing.md,
             alignItems: 'center',
           }}
         >
-          <span style={{ color: gray.text, fontSize: 12 }}>Tahun berjalan</span>
+          <span
+            style={{
+              color: tokens.colors.text.slate,
+              fontFamily: tokens.typography.family,
+              ...tokens.typography.body,
+            }}
+          >
+            Tahun berjalan
+          </span>
           <select
             aria-label="Filter tahun"
             value={year}
             onChange={(event) => setYear(event.target.value)}
             style={{
-              minHeight: 36,
-              border: `1px solid ${gray.mid}`,
-              borderRadius: 6,
-              background: gray.bg,
-              color: gray.ink,
-              fontSize: 12,
+              minHeight: 38,
+              border: `1px solid ${tokens.colors.line.borderGray}`,
+              borderRadius: tokens.radius.sm,
+              background: tokens.colors.surface.white,
+              color: tokens.colors.text.ink,
+              fontFamily: tokens.typography.family,
+              fontSize: tokens.typography.caption.fontSize,
             }}
           >
             {yearOptions.map((item) => (
@@ -327,38 +548,91 @@ export default function Dashboard({ onNavigate }) {
             ))}
           </select>
         </div>
-        <MiniBars data={chartData} />
-        <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
-          <span style={{ display: 'inline-flex', gap: 4, alignItems: 'center', color: gray.text, fontSize: 10 }}>
-            <span style={{ width: 12, height: 8, background: gray.success }} />
+        {visibleMonthlyData.length === 0 ? (
+          <EmptyState
+            title="Belum ada data untuk ditampilkan."
+            description="Grafik arus kas akan muncul setelah ada transaksi."
+          />
+        ) : visibleMonthlyData.length < 2 ? (
+          <EmptyState
+            title="Grafik tersedia setelah data 2 bulan terkumpul."
+            description="Data bulan pertama tetap tersimpan dan akan dibandingkan saat bulan berikutnya ada transaksi."
+          />
+        ) : (
+          <MiniBars data={chartData} />
+        )}
+        <div style={{ display: 'flex', gap: tokens.spacing.md, alignItems: 'center' }}>
+          <span
+            style={{
+              display: 'inline-flex',
+              gap: 4,
+              alignItems: 'center',
+              color: tokens.colors.text.coolGray,
+              fontSize: tokens.typography.caption.fontSize,
+            }}
+          >
+            <span
+              style={{
+                width: 12,
+                height: 8,
+                borderRadius: 3,
+                background: tokens.colors.semantic.success,
+              }}
+            />
             Masuk
           </span>
-          <span style={{ display: 'inline-flex', gap: 4, alignItems: 'center', color: gray.text, fontSize: 10 }}>
-            <span style={{ width: 12, height: 8, background: gray.danger, border: `1px solid ${gray.danger}` }} />
+          <span
+            style={{
+              display: 'inline-flex',
+              gap: 4,
+              alignItems: 'center',
+              color: tokens.colors.text.coolGray,
+              fontSize: tokens.typography.caption.fontSize,
+            }}
+          >
+            <span
+              style={{
+                width: 12,
+                height: 8,
+                borderRadius: 3,
+                background: tokens.colors.semantic.error,
+              }}
+            />
             Keluar
           </span>
         </div>
-      </Card>
+      </DashboardCard>
 
-      <Card title="Ringkasan proyek aktif" note="profit terbesar di atas">
+      <DashboardCard title="Ringkasan proyek aktif" note="profit terbesar">
         {activeProjects.length > 0 ? (
-          activeProjects.map((item) => (
-            <div key={item.id} style={{ display: 'grid', gap: 6 }}>
+          activeProjects.slice(0, 3).map((item) => (
+            <div key={item.id} style={{ display: 'grid', gap: tokens.spacing.sm }}>
               <div
                 style={{
                   display: 'grid',
                   gridTemplateColumns: '1fr auto',
-                  gap: 8,
+                  gap: tokens.spacing.sm,
                   alignItems: 'baseline',
                   minHeight: 28,
-                  borderBottom: `1px solid ${gray.line}`,
+                  borderBottom: `1px solid ${tokens.colors.line.borderGray}`,
                   paddingBottom: 6,
                 }}
               >
-                <span style={{ color: gray.text, fontSize: 12 }}>{item.nama}</span>
+                <span
+                  style={{
+                    color: tokens.colors.text.slate,
+                    fontFamily: tokens.typography.family,
+                    fontSize: tokens.typography.caption.fontSize,
+                  }}
+                >
+                  {item.nama}
+                </span>
                 <strong
                   style={{
-                    color: item.summary.profitBersih >= 0 ? gray.success : gray.danger,
+                    color:
+                      item.summary.profitBersih >= 0
+                        ? tokens.colors.semantic.success
+                        : tokens.colors.semantic.error,
                     fontSize: 14,
                     textAlign: 'right',
                   }}
@@ -370,18 +644,32 @@ export default function Dashboard({ onNavigate }) {
             </div>
           ))
         ) : (
-          <span style={{ color: gray.text, fontSize: 12 }}>
-            Tidak ada proyek aktif.
-          </span>
+          <EmptyState
+            title="Tidak ada proyek aktif saat ini."
+            description="Proyek aktif akan tampil di sini saat statusnya Aktif."
+            ctaLabel="Lihat semua proyek ->"
+            onCta={() => onNavigate?.('projects')}
+          />
         )}
-      </Card>
+      </DashboardCard>
 
-      <Card title="Ops Perusahaan" note="non-proyek">
-        <LabelRow label="Total ops perusahaan" value={fmtIDR(totalOpsPerusahaan)} strong />
-        {opsByCategory.map((item) => (
-          <LabelRow key={item.kategori} label={item.kategori} value={fmtIDR(item.total)} />
-        ))}
-      </Card>
+      <DashboardCard title="Ops Perusahaan" note="non-proyek">
+        <LabelRow label="Total pengeluaran" value={fmtIDR(totalOpsPerusahaan)} strong />
+        <LabelRow
+          label="Kategori terbesar"
+          value={
+            largestOpsCategory?.total > 0
+              ? `${largestOpsCategory.kategori} (${fmtIDR(largestOpsCategory.total)})`
+              : '-'
+          }
+        />
+      </DashboardCard>
+
+      <InsightCard
+        message={insight.message}
+        ctaLabel={insight.ctaLabel}
+        onCta={insight.onCta}
+      />
     </PageFrame>
   )
 }
