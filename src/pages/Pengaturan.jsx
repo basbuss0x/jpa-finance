@@ -6,25 +6,22 @@ import {
   resetAllData,
   saveSettings,
 } from '../store'
-import {
-  Card,
-  LabelRow,
-  PageFrame,
-  WireButton,
-  gray,
-} from '../components/WireframeShared.jsx'
+import { LabelRow, PageFrame } from '../components/WireframeShared.jsx'
+import { Toast } from '../components/ui.jsx'
+import { componentStyles, tokens } from '../designTokens'
 
 const inputStyle = {
   width: '100%',
-  minHeight: 48,
-  padding: '0 12px',
-  border: `1px solid ${gray.mid}`,
-  borderRadius: 6,
-  background: gray.bg,
+  minHeight: 50,
+  padding: '0 14px',
+  border: `1px solid ${tokens.colors.line.borderGray}`,
+  borderRadius: tokens.radius.md,
+  background: tokens.colors.surface.white,
   boxSizing: 'border-box',
-  color: gray.ink,
-  fontSize: 14,
-  fontWeight: 700,
+  color: tokens.colors.text.ink,
+  fontSize: tokens.typography.body.fontSize,
+  fontWeight: 600,
+  fontFamily: tokens.typography.family,
 }
 
 function formatDateTime(value) {
@@ -38,31 +35,90 @@ function formatDateTime(value) {
   }).format(new Date(value))
 }
 
-function Toast({ children }) {
-  if (!children) return null
-
+function SettingsCard({ title, note, children, style }) {
   return (
-    <div
+    <section
       style={{
-        position: 'fixed',
-        left: '50%',
-        bottom: 74,
-        transform: 'translateX(-50%)',
-        width: 'calc(100% - 32px)',
-        maxWidth: 358,
-        minHeight: 44,
+        ...componentStyles.card,
         display: 'grid',
-        placeItems: 'center',
-        borderRadius: 8,
-        background: gray.primary,
-        color: '#fff',
-        fontSize: 13,
-        fontWeight: 800,
-        zIndex: 30,
+        gap: tokens.spacing.md,
+        fontFamily: tokens.typography.family,
+        ...style,
+      }}
+    >
+      {(title || note) ? (
+        <div
+          style={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'baseline',
+            gap: tokens.spacing.md,
+          }}
+        >
+          {title ? (
+            <h2
+              style={{
+                margin: 0,
+                color: tokens.colors.text.ink,
+                ...tokens.typography.cardTitle,
+              }}
+            >
+              {title}
+            </h2>
+          ) : null}
+          {note ? (
+            <span
+              style={{
+                color: tokens.colors.text.coolGray,
+                ...tokens.typography.caption,
+                textAlign: 'right',
+              }}
+            >
+              {note}
+            </span>
+          ) : null}
+        </div>
+      ) : null}
+      {children}
+    </section>
+  )
+}
+
+function PrimaryAction({ children, onClick }) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      style={{
+        ...componentStyles.primaryButton,
+        width: '100%',
+        background: tokens.colors.primary.actionBlue,
+        fontFamily: tokens.typography.family,
+        fontSize: 15,
       }}
     >
       {children}
-    </div>
+    </button>
+  )
+}
+
+function SecondaryAction({ children, onClick }) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      style={{
+        ...componentStyles.secondaryButton,
+        width: '100%',
+        background: tokens.colors.surface.white,
+        borderColor: tokens.colors.primary.actionBlue,
+        color: tokens.colors.primary.actionBlue,
+        fontFamily: tokens.typography.family,
+        fontSize: 15,
+      }}
+    >
+      {children}
+    </button>
   )
 }
 
@@ -163,32 +219,50 @@ export default function Pengaturan({ onNavigate }) {
 
   return (
     <PageFrame
-      title="Pengaturan & Backup"
-      subtitle="Backup data lokal dan info aplikasi."
+      title="Backup & Pengaturan"
+      subtitle="Kelola data lokal dan info aplikasi."
       activePage="settings"
       onNavigate={onNavigate}
     >
-      <Card title="Backup data" note="JSON untuk disimpan di HP/Drive">
+      <SettingsCard title="Status Backup" note="data lokal">
         <div
           style={{
             display: 'grid',
-            gap: 4,
-            padding: 10,
-            border: `1px dashed ${gray.mid}`,
-            borderRadius: 8,
-            background: gray.bg,
+            gap: tokens.spacing.xs,
+            padding: tokens.spacing.md,
+            border: `1px solid ${tokens.colors.line.lineBlue}`,
+            borderRadius: tokens.radius.md,
+            background: tokens.colors.surface.mistBlue,
           }}
         >
-          <span style={{ color: gray.text, fontSize: 11 }}>Backup terakhir</span>
-          <strong style={{ color: gray.ink, fontSize: 14 }}>
+          <span
+            style={{
+              color: tokens.colors.text.coolGray,
+              fontSize: tokens.typography.caption.fontSize,
+            }}
+          >
+            Backup terakhir
+          </span>
+          <strong
+            style={{
+              color: tokens.colors.text.ink,
+              fontSize: tokens.typography.cardTitle.fontSize,
+            }}
+          >
             {formatDateTime(settings.lastBackup)}
           </strong>
+          <span
+            style={{
+              color: tokens.colors.text.slate,
+              fontSize: tokens.typography.caption.fontSize,
+            }}
+          >
+            Simpan backup rutin ke Google Drive atau folder aman.
+          </span>
         </div>
-        <WireButton onClick={handleExport}>Export Backup (JSON)</WireButton>
-        <span style={{ color: gray.mid, fontSize: 10 }}>
-          File: jpa-backup-{new Date().toISOString().slice(0, 10)}.json
-        </span>
+      </SettingsCard>
 
+      <SettingsCard title="Backup data" note="export / import JSON">
         <input
           ref={fileInputRef}
           type="file"
@@ -196,57 +270,153 @@ export default function Pengaturan({ onNavigate }) {
           onChange={handleFileChange}
           style={{ display: 'none' }}
         />
+
+        <div style={{ display: 'grid', gap: tokens.spacing.sm }}>
+          <PrimaryAction onClick={handleExport}>Export Backup (JSON)</PrimaryAction>
+          <span
+            style={{
+              color: tokens.colors.text.coolGray,
+              fontSize: tokens.typography.caption.fontSize,
+            }}
+          >
+            Simpan file backup ke perangkat.
+          </span>
+        </div>
+
         <button
           type="button"
           onClick={() => fileInputRef.current?.click()}
           style={{
             display: 'grid',
             placeItems: 'center',
-            minHeight: 76,
-            padding: 10,
-            border: `1px dashed ${gray.mid}`,
-            borderRadius: 8,
-            background: gray.bg,
+            minHeight: 78,
+            padding: tokens.spacing.md,
+            border: `1px dashed ${tokens.colors.line.lineBlue}`,
+            borderRadius: tokens.radius.md,
+            background: tokens.colors.surface.mistBlue,
             textAlign: 'center',
-            color: gray.ink,
+            color: tokens.colors.text.ink,
+            fontFamily: tokens.typography.family,
           }}
         >
           <strong style={{ fontSize: 13 }}>
             {importName ? 'File siap diimport' : 'Area Upload Backup'}
           </strong>
-          <span style={{ color: gray.text, fontSize: 11 }}>
+          <span
+            style={{
+              color: tokens.colors.text.slate,
+              fontSize: tokens.typography.caption.fontSize,
+            }}
+          >
             {importName || 'Tap untuk pilih file JSON dari HP'}
           </span>
         </button>
-        <WireButton variant="secondary" onClick={handleImport}>
-          {importPayload ? 'Konfirmasi Import Backup' : 'Import Backup'}
-        </WireButton>
-        <span style={{ color: gray.mid, fontSize: 10 }}>
-          Upload JSON, replace semua data setelah konfirmasi.
-        </span>
-      </Card>
 
-      <Card title="Reset data" note="konfirmasi 2 langkah">
-        <div
+        <div style={{ display: 'grid', gap: tokens.spacing.sm }}>
+          <SecondaryAction onClick={handleImport}>
+            {importPayload ? 'Konfirmasi Import Backup' : 'Import Backup'}
+          </SecondaryAction>
+          <span
+            style={{
+              color: tokens.colors.text.coolGray,
+              fontSize: tokens.typography.caption.fontSize,
+            }}
+          >
+            Pulihkan data dari file backup. Import akan mengganti semua data lokal.
+          </span>
+        </div>
+      </SettingsCard>
+
+      <SettingsCard title="Pengingat backup mingguan" note="Disarankan">
+        <p
           style={{
-            display: 'grid',
-            gap: 8,
-            padding: 10,
-            border: `2px solid ${gray.ink}`,
-            borderRadius: 8,
-            background: gray.card,
+            margin: 0,
+            color: tokens.colors.text.slate,
+            fontFamily: tokens.typography.family,
+            ...tokens.typography.body,
           }}
         >
-          <strong style={{ color: gray.ink, fontSize: 13 }}>Hapus Semua Data</strong>
-          <span style={{ color: gray.text, fontSize: 12 }}>
-            Step 1: tap tombol reset. Step 2: ketik HAPUS untuk konfirmasi.
+          Karena data tersimpan di browser HP, export backup rutin membantu mencegah
+          kehilangan data saat cache browser dibersihkan atau perangkat diganti.
+        </p>
+      </SettingsCard>
+
+      <SettingsCard title="Info aplikasi" note="editable">
+        <label style={{ display: 'grid', gap: tokens.spacing.sm }}>
+          <span
+            style={{
+              color: tokens.colors.text.slate,
+              fontSize: tokens.typography.caption.fontSize,
+              fontWeight: 800,
+            }}
+          >
+            Nama perusahaan
+          </span>
+          <input
+            type="text"
+            value={companyName}
+            onChange={(event) => setCompanyName(event.target.value)}
+            onBlur={saveCompanyName}
+            style={inputStyle}
+          />
+        </label>
+        <LabelRow label="Versi Aplikasi" value={settings.versi} />
+        <LabelRow label="Storage" value="localStorage" />
+      </SettingsCard>
+
+      {error ? (
+        <div
+          style={{
+            padding: tokens.spacing.md,
+            border: `1px solid ${tokens.colors.danger.border}`,
+            borderRadius: tokens.radius.md,
+            background: tokens.colors.danger.tint,
+            color: tokens.colors.semantic.error,
+            fontSize: tokens.typography.caption.fontSize,
+            fontWeight: 800,
+          }}
+        >
+          {error}
+        </div>
+      ) : null}
+
+      <SettingsCard
+        title="Zona Berbahaya"
+        note="konfirmasi 2 langkah"
+        style={{
+          marginTop: tokens.spacing.xl,
+          background: tokens.colors.danger.tint,
+          borderColor: tokens.colors.danger.border,
+          boxShadow: 'none',
+        }}
+      >
+        <div style={{ display: 'grid', gap: tokens.spacing.sm }}>
+          <strong
+            style={{
+              color: tokens.colors.semantic.error,
+              fontSize: tokens.typography.cardTitle.fontSize,
+            }}
+          >
+            Hapus Semua Data
+          </strong>
+          <span
+            style={{
+              color: tokens.colors.text.slate,
+              fontSize: tokens.typography.body.fontSize,
+              lineHeight: 1.45,
+            }}
+          >
+            Tindakan ini akan menghapus semua data lokal dan tidak dapat dibatalkan.
           </span>
           {resetOpen ? (
             <input
               value={resetText}
               onChange={(event) => setResetText(event.target.value)}
               placeholder='Ketik "HAPUS"'
-              style={inputStyle}
+              style={{
+                ...inputStyle,
+                borderColor: tokens.colors.danger.border,
+              }}
             />
           ) : null}
         </div>
@@ -256,58 +426,27 @@ export default function Pengaturan({ onNavigate }) {
           disabled={resetOpen && resetText !== 'HAPUS'}
           style={{
             width: '100%',
-            minHeight: 48,
-            borderRadius: 8,
-            border: `2px solid ${gray.ink}`,
-            background: resetOpen && resetText !== 'HAPUS' ? gray.line : '#fff',
-            color: resetOpen && resetText !== 'HAPUS' ? gray.mid : gray.ink,
+            minHeight: 52,
+            borderRadius: tokens.radius.md,
+            border: `1px solid ${tokens.colors.semantic.error}`,
+            background:
+              resetOpen && resetText !== 'HAPUS'
+                ? tokens.colors.danger.border
+                : tokens.colors.surface.white,
+            color:
+              resetOpen && resetText !== 'HAPUS'
+                ? tokens.colors.text.coolGray
+                : tokens.colors.semantic.error,
             fontSize: 14,
             fontWeight: 900,
+            fontFamily: tokens.typography.family,
           }}
         >
           {resetOpen ? 'Konfirmasi Hapus Semua Data' : 'Hapus Semua Data'}
         </button>
-      </Card>
+      </SettingsCard>
 
-      <Card title="Info perusahaan" note="editable">
-        <label style={{ display: 'grid', gap: 6 }}>
-          <span style={{ color: gray.text, fontSize: 12 }}>Nama perusahaan</span>
-          <input
-            type="text"
-            value={companyName}
-            onChange={(event) => setCompanyName(event.target.value)}
-            onBlur={saveCompanyName}
-            style={inputStyle}
-          />
-        </label>
-        <LabelRow label="Versi app" value={settings.versi} />
-        <LabelRow label="Storage" value="localStorage" />
-      </Card>
-
-      {error ? (
-        <div
-          style={{
-            padding: 10,
-            border: `1px solid ${gray.ink}`,
-            borderRadius: 8,
-            background: gray.card,
-            color: gray.ink,
-            fontSize: 12,
-            fontWeight: 800,
-          }}
-        >
-          {error}
-        </div>
-      ) : null}
-
-      <Card title="Catatan" note="Phase 1">
-        <p style={{ margin: 0, color: gray.text, fontSize: 12, lineHeight: 1.45 }}>
-          Backup berisi proyek, transaksi, settings, dan waktu export. Import akan
-          mengganti seluruh data lokal setelah tombol konfirmasi ditekan.
-        </p>
-      </Card>
-
-      <Toast>{toast}</Toast>
+      <Toast visible={Boolean(toast)}>{toast || 'Pengaturan tersimpan'}</Toast>
     </PageFrame>
   )
 }
