@@ -7,36 +7,86 @@ import {
 } from '../constants'
 import { addProyek, getProyek, getTransaksi } from '../store'
 import { fmtIDR, generateProyekId, hitungProyek } from '../utils'
-import {
-  Badge,
-  Card,
-  PageFrame,
-  ProgressBar,
-  WireButton,
-  gray,
-} from '../components/WireframeShared.jsx'
+import { PageFrame, WireButton } from '../components/WireframeShared.jsx'
+import { EmptyState } from '../components/ui.jsx'
+import { componentStyles, tokens } from '../designTokens'
 
 const inputStyle = {
   width: '100%',
-  minHeight: 48,
-  border: `1px solid ${gray.mid}`,
-  borderRadius: 6,
-  padding: '0 12px',
-  background: gray.bg,
-  color: gray.ink,
+  minHeight: 50,
+  border: `1px solid ${tokens.colors.line.borderGray}`,
+  borderRadius: tokens.radius.md,
+  padding: '0 14px',
+  background: tokens.colors.surface.white,
+  color: tokens.colors.text.ink,
   boxSizing: 'border-box',
-  fontSize: 14,
+  fontSize: tokens.typography.body.fontSize,
+  fontFamily: tokens.typography.family,
+}
+
+const labelStyle = {
+  color: tokens.colors.text.ink,
+  fontSize: tokens.typography.cardTitle.fontSize,
+  fontWeight: tokens.typography.cardTitle.fontWeight,
+}
+
+function SurfaceCard({ title, note, children }) {
+  return (
+    <section
+      style={{
+        ...componentStyles.card,
+        display: 'grid',
+        gap: tokens.spacing.md,
+        fontFamily: tokens.typography.family,
+      }}
+    >
+      {(title || note) ? (
+        <div
+          style={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'baseline',
+            gap: tokens.spacing.md,
+          }}
+        >
+          {title ? (
+            <h2
+              style={{
+                margin: 0,
+                color: tokens.colors.text.ink,
+                ...tokens.typography.cardTitle,
+              }}
+            >
+              {title}
+            </h2>
+          ) : null}
+          {note ? (
+            <span
+              style={{
+                color: tokens.colors.text.coolGray,
+                ...tokens.typography.caption,
+                textAlign: 'right',
+              }}
+            >
+              {note}
+            </span>
+          ) : null}
+        </div>
+      ) : null}
+      {children}
+    </section>
+  )
 }
 
 function Segmented({ label, options, value, onChange, note }) {
   return (
-    <label style={{ display: 'grid', gap: 8 }}>
-      <span style={{ color: gray.ink, fontSize: 13, fontWeight: 800 }}>{label}</span>
+    <label style={{ display: 'grid', gap: tokens.spacing.sm }}>
+      <span style={labelStyle}>{label}</span>
       <div
         style={{
           display: 'grid',
           gridTemplateColumns: `repeat(${options.length}, 1fr)`,
-          gap: 6,
+          gap: tokens.spacing.sm,
         }}
       >
         {options.map((option) => {
@@ -47,13 +97,20 @@ function Segmented({ label, options, value, onChange, note }) {
               type="button"
               onClick={() => onChange(option)}
               style={{
-                minHeight: 44,
-                border: `1px solid ${active ? gray.gold : gray.line}`,
-                borderRadius: 6,
-                background: active ? gray.primary : gray.bg,
-                color: active ? '#fff' : gray.text,
-                fontSize: 11,
+                minHeight: 42,
+                border: `1px solid ${
+                  active ? tokens.colors.primary.actionBlue : tokens.colors.line.borderGray
+                }`,
+                borderRadius: tokens.radius.full,
+                background: active
+                  ? tokens.colors.surface.iceBlue
+                  : tokens.colors.surface.white,
+                color: active
+                  ? tokens.colors.primary.actionBlue
+                  : tokens.colors.text.slate,
+                fontSize: tokens.typography.caption.fontSize,
                 fontWeight: 800,
+                fontFamily: tokens.typography.family,
               }}
             >
               {option}
@@ -61,14 +118,118 @@ function Segmented({ label, options, value, onChange, note }) {
           )
         })}
       </div>
-      {note ? <span style={{ color: gray.mid, fontSize: 10 }}>{note}</span> : null}
+      {note ? (
+        <span
+          style={{
+            color: tokens.colors.text.coolGray,
+            fontSize: tokens.typography.caption.fontSize,
+          }}
+        >
+          {note}
+        </span>
+      ) : null}
     </label>
+  )
+}
+
+function FilterChip({ active, children, onClick }) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      style={{
+        minHeight: 34,
+        padding: '0 12px',
+        border: `1px solid ${
+          active ? tokens.colors.primary.actionBlue : tokens.colors.line.borderGray
+        }`,
+        borderRadius: tokens.radius.full,
+        background: active ? tokens.colors.primary.actionBlue : tokens.colors.surface.white,
+        color: active ? tokens.colors.text.inverse : tokens.colors.text.slate,
+        fontFamily: tokens.typography.family,
+        fontSize: tokens.typography.caption.fontSize,
+        fontWeight: 800,
+        whiteSpace: 'nowrap',
+      }}
+    >
+      {children}
+    </button>
+  )
+}
+
+function StatusBadge({ status }) {
+  const palette =
+    status === STATUS_PROYEK.aktif
+      ? {
+          bg: '#ECFDF5',
+          border: '#BBF7D0',
+          color: tokens.colors.semantic.success,
+        }
+      : status === STATUS_PROYEK.menungguBayar
+        ? {
+            bg: '#FFFBEB',
+            border: '#FDE68A',
+            color: tokens.colors.semantic.warning,
+          }
+        : {
+            bg: tokens.colors.surface.mistBlue,
+            border: tokens.colors.line.borderGray,
+            color: tokens.colors.text.slate,
+          }
+
+  return (
+    <span
+      style={{
+        display: 'inline-flex',
+        alignItems: 'center',
+        minHeight: 26,
+        padding: '0 9px',
+        borderRadius: tokens.radius.full,
+        border: `1px solid ${palette.border}`,
+        background: palette.bg,
+        color: palette.color,
+        fontSize: 11,
+        fontWeight: 800,
+      }}
+    >
+      {status}
+    </span>
+  )
+}
+
+function ProjectProgress({ value }) {
+  const safeValue = Math.max(0, Math.min(100, value))
+  return (
+    <div
+      aria-label={`Progress pembayaran ${safeValue}%`}
+      style={{
+        height: 10,
+        borderRadius: tokens.radius.full,
+        background: tokens.colors.surface.iceBlue,
+        overflow: 'hidden',
+      }}
+    >
+      <div
+        style={{
+          width: `${safeValue}%`,
+          height: '100%',
+          borderRadius: tokens.radius.full,
+          background:
+            safeValue >= 100
+              ? tokens.colors.semantic.success
+              : tokens.colors.primary.actionBlue,
+        }}
+      />
+    </div>
   )
 }
 
 function ProjectCard({ proyek, transaksi, onOpenDetail }) {
   const summary = hitungProyek(proyek, transaksi)
-  const resultLabel = summary.profitBersih >= 0 ? 'Untung' : 'Rugi'
+  const profitColor =
+    summary.profitBersih >= 0
+      ? tokens.colors.semantic.success
+      : tokens.colors.semantic.error
 
   return (
     <button
@@ -76,87 +237,149 @@ function ProjectCard({ proyek, transaksi, onOpenDetail }) {
       onClick={onOpenDetail}
       style={{
         display: 'grid',
-        gap: 8,
+        gap: tokens.spacing.md,
         width: '100%',
-        padding: 12,
-        border: `1px solid ${gray.line}`,
-        borderRadius: 8,
-        background: gray.bg,
-        color: gray.ink,
+        padding: tokens.spacing.lg,
+        border: `1px solid ${tokens.colors.line.borderGray}`,
+        borderRadius: tokens.radius.lg,
+        background: tokens.colors.surface.white,
+        boxShadow: tokens.shadow.soft,
+        color: tokens.colors.text.ink,
         textAlign: 'left',
+        fontFamily: tokens.typography.family,
       }}
     >
       <div
         style={{
           display: 'grid',
           gridTemplateColumns: '1fr auto',
-          gap: 8,
+          gap: tokens.spacing.sm,
           alignItems: 'start',
         }}
       >
-        <div>
-          <strong style={{ display: 'block', fontSize: 13 }}>{proyek.nama}</strong>
-          <span style={{ color: gray.text, fontSize: 11 }}>
-            {proyek.id} | {proyek.jenis} | {proyek.klien}
+        <div style={{ minWidth: 0 }}>
+          <strong
+            style={{
+              display: 'block',
+              color: tokens.colors.text.ink,
+              fontSize: tokens.typography.cardTitle.fontSize,
+              lineHeight: 1.25,
+            }}
+          >
+            {proyek.nama}
+          </strong>
+          <span
+            style={{
+              display: 'block',
+              marginTop: 4,
+              color: tokens.colors.text.coolGray,
+              fontSize: tokens.typography.caption.fontSize,
+              lineHeight: 1.35,
+            }}
+          >
+            {proyek.id} | {proyek.jenis} | {proyek.klien || '-'}
           </span>
         </div>
-        <Badge>{proyek.status}</Badge>
+        <StatusBadge status={proyek.status} />
       </div>
-      <ProgressBar
-        value={summary.progressPct}
-        color={summary.progressPct >= 100 ? gray.success : gray.gold}
-      />
+
+      <div style={{ display: 'grid', gap: tokens.spacing.sm }}>
+        <ProjectProgress value={summary.progressPct} />
+        <div
+          style={{
+            display: 'grid',
+            gridTemplateColumns: '1fr auto',
+            gap: tokens.spacing.sm,
+            color: tokens.colors.text.slate,
+            fontSize: tokens.typography.caption.fontSize,
+          }}
+        >
+          <span>
+            Masuk {fmtIDR(summary.totalMasuk)} dari {fmtIDR(proyek.nilaiPesanan)}
+          </span>
+          <strong style={{ color: tokens.colors.text.ink }}>{summary.progressPct}%</strong>
+        </div>
+      </div>
+
       <div
         style={{
           display: 'grid',
           gridTemplateColumns: '1fr auto',
-          gap: 8,
-          color: gray.text,
-          fontSize: 11,
+          gap: tokens.spacing.sm,
+          paddingTop: tokens.spacing.sm,
+          borderTop: `1px solid ${tokens.colors.line.borderGray}`,
+          alignItems: 'baseline',
         }}
       >
-        <span>
-          Masuk {fmtIDR(summary.totalMasuk)} dari {fmtIDR(proyek.nilaiPesanan)}
+        <span
+          style={{
+            color: tokens.colors.text.coolGray,
+            fontSize: tokens.typography.caption.fontSize,
+          }}
+        >
+          Profit bersih
         </span>
-        <strong style={{ color: gray.ink }}>{summary.progressPct}%</strong>
-      </div>
-      <div
-        style={{
-          display: 'grid',
-          gridTemplateColumns: '1fr auto',
-          gap: 8,
-          paddingTop: 4,
-          borderTop: `1px dashed ${gray.line}`,
-          fontSize: 12,
-        }}
-      >
-        <span style={{ color: gray.text }}>Profit bersih</span>
-        <strong style={{ color: summary.profitBersih >= 0 ? gray.success : gray.danger }}>
-          {resultLabel} {fmtIDR(Math.abs(summary.profitBersih))}
+        <strong style={{ color: profitColor, fontSize: 14, textAlign: 'right' }}>
+          {fmtIDR(summary.profitBersih)}
         </strong>
       </div>
     </button>
   )
 }
 
-function EmptyProjects({ onCreate }) {
-  return (
-    <Card title="Belum ada proyek" note="empty state">
-      <div style={{ display: 'grid', justifyItems: 'center', gap: 8, padding: 12 }}>
-        <svg viewBox="0 0 160 96" aria-hidden="true" style={{ width: 132, height: 80 }}>
-          <rect x="22" y="30" width="116" height="46" rx="8" fill="#fff" stroke={gray.mid} />
-          <path d="M34 30v-8h36l8 8" fill={gray.bg} stroke={gray.mid} />
-          <rect x="46" y="48" width="68" height="8" rx="4" fill={gray.line} />
-          <rect x="56" y="62" width="48" height="8" rx="4" fill={gray.line} />
-        </svg>
-        <strong style={{ color: gray.ink, fontSize: 18 }}>Belum ada proyek</strong>
-        <span style={{ color: gray.text, fontSize: 12 }}>
-          Mulai dengan membuat proyek pertamamu
-        </span>
-      </div>
-      <WireButton onClick={onCreate}>+ Buat Proyek Pertama</WireButton>
-    </Card>
-  )
+function getEmptyCopy({ totalCount, statusFilter, jenisFilter }) {
+  if (totalCount === 0 && statusFilter === 'Semua' && jenisFilter === 'Semua') {
+    return {
+      title: 'Belum ada proyek.',
+      description: 'Mulai dengan membuat proyek pertama.',
+      ctaLabel: '+ Buat Proyek Pertama',
+      action: 'create',
+    }
+  }
+
+  if (statusFilter === STATUS_PROYEK.aktif && jenisFilter === 'Semua') {
+    return {
+      title: 'Tidak ada proyek aktif saat ini.',
+      description: 'Cek semua proyek untuk melihat status lainnya.',
+      ctaLabel: 'Lihat semua proyek ->',
+      action: 'all',
+    }
+  }
+
+  if (statusFilter === STATUS_PROYEK.menungguBayar && jenisFilter === 'Semua') {
+    return {
+      title: 'Tidak ada proyek yang menunggu pembayaran.',
+      description: 'Proyek dengan status menunggu bayar akan muncul di sini.',
+    }
+  }
+
+  if (statusFilter === STATUS_PROYEK.selesai && jenisFilter === 'Semua') {
+    return {
+      title: 'Belum ada proyek yang selesai.',
+      description: 'Proyek selesai akan tampil setelah statusnya diperbarui.',
+    }
+  }
+
+  if (jenisFilter === 'Regular' && statusFilter === 'Semua') {
+    return {
+      title: 'Tidak ada proyek jenis Regular.',
+      description: 'Regular dipakai untuk transaksi sekolah berulang.',
+    }
+  }
+
+  if (jenisFilter === 'Project' && statusFilter === 'Semua') {
+    return {
+      title: 'Tidak ada proyek jenis Project.',
+      description: 'Project dipakai untuk kerja khusus seperti CCTV, aplikasi, atau pengadaan umum.',
+    }
+  }
+
+  return {
+    title: `Tidak ada proyek ${jenisFilter !== 'Semua' ? jenisFilter : ''} dengan status ${statusFilter}.`,
+    description: 'Ubah filter untuk melihat proyek lain.',
+    ctaLabel: 'Lihat semua proyek ->',
+    action: 'all',
+  }
 }
 
 function TambahProyekForm({ proyek, onCancel, onSaved }) {
@@ -208,11 +431,9 @@ function TambahProyekForm({ proyek, onCancel, onSaved }) {
         {'<-'} Kembali
       </WireButton>
 
-      <Card title="Data proyek baru" note="status otomatis Aktif">
-        <label style={{ display: 'grid', gap: 8 }}>
-          <span style={{ color: gray.ink, fontSize: 13, fontWeight: 800 }}>
-            Nama Proyek
-          </span>
+      <SurfaceCard title="Data proyek baru" note="status otomatis Aktif">
+        <label style={{ display: 'grid', gap: tokens.spacing.sm }}>
+          <span style={labelStyle}>Nama Proyek</span>
           <input
             value={nama}
             onChange={(event) => setNama(event.target.value)}
@@ -233,8 +454,8 @@ function TambahProyekForm({ proyek, onCancel, onSaved }) {
           }
         />
 
-        <label style={{ display: 'grid', gap: 8 }}>
-          <span style={{ color: gray.ink, fontSize: 13, fontWeight: 800 }}>Klien</span>
+        <label style={{ display: 'grid', gap: tokens.spacing.sm }}>
+          <span style={labelStyle}>Klien</span>
           <input
             value={klien}
             onChange={(event) => setKlien(event.target.value)}
@@ -250,10 +471,8 @@ function TambahProyekForm({ proyek, onCancel, onSaved }) {
           onChange={setSumber}
         />
 
-        <label style={{ display: 'grid', gap: 8 }}>
-          <span style={{ color: gray.ink, fontSize: 13, fontWeight: 800 }}>
-            Nilai Pesanan (IDR)
-          </span>
+        <label style={{ display: 'grid', gap: tokens.spacing.sm }}>
+          <span style={labelStyle}>Nilai Pesanan (IDR)</span>
           <input
             type="number"
             inputMode="numeric"
@@ -262,15 +481,18 @@ function TambahProyekForm({ proyek, onCancel, onSaved }) {
             placeholder="Contoh: 18500000"
             style={inputStyle}
           />
-          <span style={{ color: gray.mid, fontSize: 10 }}>
+          <span
+            style={{
+              color: tokens.colors.text.coolGray,
+              fontSize: tokens.typography.caption.fontSize,
+            }}
+          >
             Terbaca: {fmtIDR(Number(nilaiPesanan))}
           </span>
         </label>
 
-        <label style={{ display: 'grid', gap: 8 }}>
-          <span style={{ color: gray.ink, fontSize: 13, fontWeight: 800 }}>
-            Tanggal Mulai
-          </span>
+        <label style={{ display: 'grid', gap: tokens.spacing.sm }}>
+          <span style={labelStyle}>Tanggal Mulai</span>
           <input
             type="date"
             value={tanggalMulai}
@@ -279,8 +501,8 @@ function TambahProyekForm({ proyek, onCancel, onSaved }) {
           />
         </label>
 
-        <label style={{ display: 'grid', gap: 8 }}>
-          <span style={{ color: gray.ink, fontSize: 13, fontWeight: 800 }}>Catatan</span>
+        <label style={{ display: 'grid', gap: tokens.spacing.sm }}>
+          <span style={labelStyle}>Catatan</span>
           <textarea
             value={catatan}
             onChange={(event) => setCatatan(event.target.value)}
@@ -289,35 +511,35 @@ function TambahProyekForm({ proyek, onCancel, onSaved }) {
             style={{
               ...inputStyle,
               minHeight: 76,
-              padding: 12,
+              padding: tokens.spacing.md,
               resize: 'none',
               lineHeight: 1.4,
             }}
           />
         </label>
-      </Card>
+      </SurfaceCard>
 
-      <Card title="Annotation" note="aturan tambah proyek">
-        <span style={{ color: gray.text, fontSize: 12 }}>
+      <SurfaceCard title="Annotation" note="aturan tambah proyek">
+        <span style={{ color: tokens.colors.text.slate, fontSize: 12 }}>
           Tidak ada field Status saat tambah baru. Status otomatis Aktif.
         </span>
-        <span style={{ color: gray.text, fontSize: 12 }}>
+        <span style={{ color: tokens.colors.text.slate, fontSize: 12 }}>
           Potongan Ops Perusahaan diisi nanti di Detail Proyek.
         </span>
-        <strong style={{ color: gray.ink, fontSize: 12 }}>
+        <strong style={{ color: tokens.colors.text.ink, fontSize: 12 }}>
           Validasi: Nama dan Nilai Pesanan wajib diisi.
         </strong>
-      </Card>
+      </SurfaceCard>
 
       {error ? (
         <div
           style={{
-            padding: 10,
-            border: `1px solid ${gray.ink}`,
-            borderRadius: 8,
-            background: gray.card,
-            color: gray.ink,
-            fontSize: 12,
+            padding: tokens.spacing.md,
+            border: `1px solid ${tokens.colors.danger.border}`,
+            borderRadius: tokens.radius.md,
+            background: tokens.colors.danger.tint,
+            color: tokens.colors.semantic.error,
+            fontSize: tokens.typography.caption.fontSize,
             fontWeight: 800,
           }}
         >
@@ -325,7 +547,17 @@ function TambahProyekForm({ proyek, onCancel, onSaved }) {
         </div>
       ) : null}
 
-      <WireButton onClick={handleSubmit}>Simpan Proyek</WireButton>
+      <button
+        type="button"
+        onClick={handleSubmit}
+        style={{
+          ...componentStyles.primaryButton,
+          width: '100%',
+          fontFamily: tokens.typography.family,
+        }}
+      >
+        Simpan Proyek
+      </button>
     </PageFrame>
   )
 }
@@ -352,6 +584,21 @@ export default function DaftarProyek({ onNavigate, onOpenDetail }) {
     return statusMatch && jenisMatch
   })
 
+  const emptyCopy = getEmptyCopy({
+    totalCount: proyek.length,
+    statusFilter: filter,
+    jenisFilter,
+  })
+
+  const handleEmptyCta = () => {
+    if (emptyCopy.action === 'create') {
+      setMode('create')
+      return
+    }
+    setFilter('Semua')
+    setJenisFilter('Semua')
+  }
+
   if (mode === 'create') {
     return (
       <TambahProyekForm
@@ -367,94 +614,91 @@ export default function DaftarProyek({ onNavigate, onOpenDetail }) {
 
   return (
     <PageFrame
-      title="Daftar Proyek"
-      subtitle="Semua pengadaan dan progress pembayaran."
+      title="Proyek"
+      subtitle="Pantau nilai, pembayaran, dan profit."
       activePage="projects"
       onNavigate={onNavigate}
     >
-      <WireButton onClick={() => setMode('create')}>+ Proyek Baru</WireButton>
+      <button
+        type="button"
+        onClick={() => setMode('create')}
+        style={{
+          ...componentStyles.primaryButton,
+          width: '100%',
+          fontFamily: tokens.typography.family,
+          fontSize: 15,
+        }}
+      >
+        + Proyek Baru
+      </button>
 
-      {proyek.length === 0 ? (
-        <EmptyProjects onCreate={() => setMode('create')} />
-      ) : (
-        <>
-          <Card title="Filter proyek" note="status + jenis">
-            <span style={{ color: gray.text, fontSize: 11, fontWeight: 800 }}>
-              Status
-            </span>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 6 }}>
-              {['Semua', ...STATUS_PROYEK_OPTIONS].map((item) => {
-                const active = filter === item
-                return (
-                  <button
-                    key={item}
-                    type="button"
-                    onClick={() => setFilter(item)}
-                    style={{
-                      minHeight: 42,
-                      border: `1px solid ${active ? gray.gold : gray.line}`,
-                      borderRadius: 6,
-                      background: active ? gray.primary : gray.bg,
-                      color: active ? '#fff' : gray.text,
-                      fontSize: 11,
-                      fontWeight: 800,
-                    }}
-                  >
-                    {item}
-                  </button>
-                )
-              })}
-            </div>
+      <SurfaceCard title="Filter proyek" note="compact chips">
+        <div style={{ display: 'grid', gap: tokens.spacing.sm }}>
+          <span
+            style={{
+              color: tokens.colors.text.slate,
+              fontSize: tokens.typography.caption.fontSize,
+              fontWeight: 800,
+            }}
+          >
+            Status
+          </span>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: tokens.spacing.sm }}>
+            {['Semua', ...STATUS_PROYEK_OPTIONS].map((item) => (
+              <FilterChip
+                key={item}
+                active={filter === item}
+                onClick={() => setFilter(item)}
+              >
+                {item}
+              </FilterChip>
+            ))}
+          </div>
+        </div>
 
-            <span style={{ color: gray.text, fontSize: 11, fontWeight: 800 }}>
-              Jenis transaksi
-            </span>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 6 }}>
-              {['Semua', ...JENIS_PROYEK_OPTIONS].map((item) => {
-                const active = jenisFilter === item
-                return (
-                  <button
-                    key={item}
-                    type="button"
-                    onClick={() => setJenisFilter(item)}
-                    style={{
-                      minHeight: 42,
-                      border: `1px solid ${active ? gray.gold : gray.line}`,
-                      borderRadius: 6,
-                      background: active ? gray.primary : gray.bg,
-                      color: active ? '#fff' : gray.text,
-                      fontSize: 12,
-                      fontWeight: 800,
-                    }}
-                  >
-                    {item}
-                  </button>
-                )
-              })}
-            </div>
-            <span style={{ color: gray.mid, fontSize: 10 }}>
-              Project = kerja khusus. Regular = transaksi sekolah berulang.
-            </span>
-          </Card>
+        <div style={{ display: 'grid', gap: tokens.spacing.sm }}>
+          <span
+            style={{
+              color: tokens.colors.text.slate,
+              fontSize: tokens.typography.caption.fontSize,
+              fontWeight: 800,
+            }}
+          >
+            Jenis transaksi
+          </span>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: tokens.spacing.sm }}>
+            {['Semua', ...JENIS_PROYEK_OPTIONS].map((item) => (
+              <FilterChip
+                key={item}
+                active={jenisFilter === item}
+                onClick={() => setJenisFilter(item)}
+              >
+                {item}
+              </FilterChip>
+            ))}
+          </div>
+        </div>
+      </SurfaceCard>
 
-          <Card title="List proyek" note="tap card -> Detail Proyek">
-            {filteredProyek.length > 0 ? (
-              filteredProyek.map((item) => (
-                <ProjectCard
-                  key={item.id}
-                  proyek={item}
-                  transaksi={transaksi}
-                  onOpenDetail={() => onOpenDetail?.(item.id)}
-                />
-              ))
-            ) : (
-              <span style={{ color: gray.text, fontSize: 12 }}>
-                Tidak ada proyek yang cocok dengan filter.
-              </span>
-            )}
-          </Card>
-        </>
-      )}
+      <section style={{ display: 'grid', gap: tokens.spacing.md }}>
+        {filteredProyek.length > 0 ? (
+          filteredProyek.map((item) => (
+            <ProjectCard
+              key={item.id}
+              proyek={item}
+              transaksi={transaksi}
+              onOpenDetail={() => onOpenDetail?.(item.id)}
+            />
+          ))
+        ) : (
+          <EmptyState
+            title={emptyCopy.title}
+            description={emptyCopy.description}
+            ctaLabel={emptyCopy.ctaLabel}
+            onCta={emptyCopy.ctaLabel ? handleEmptyCta : undefined}
+          />
+        )}
+      </section>
     </PageFrame>
   )
 }
