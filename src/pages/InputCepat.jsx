@@ -8,27 +8,28 @@ import {
 } from '../constants'
 import { addTransaksi, getProyek } from '../store'
 import { fmtIDR } from '../utils'
-import { BottomNav, WireButton, gray } from '../components/WireframeShared.jsx'
+import { BottomNav } from '../components/WireframeShared.jsx'
+import { componentStyles, tokens } from '../designTokens'
+import { QuickAmountChips, Toast } from '../components/ui.jsx'
 
 const fieldStyle = {
   display: 'grid',
-  gap: 8,
-  padding: 12,
-  border: `1px solid ${gray.line}`,
-  background: gray.card,
-  borderRadius: 8,
+  gap: tokens.spacing.sm,
+  ...componentStyles.card,
 }
 
 const inputStyle = {
   width: '100%',
-  minHeight: 48,
-  border: `1px solid ${gray.mid}`,
-  borderRadius: 6,
-  padding: '0 12px',
-  background: gray.bg,
-  color: gray.ink,
+  minHeight: 50,
+  border: `1px solid ${tokens.colors.line.borderGray}`,
+  borderRadius: tokens.radius.md,
+  padding: '0 14px',
+  background: tokens.colors.surface.white,
+  color: tokens.colors.text.ink,
   boxSizing: 'border-box',
-  fontSize: 14,
+  fontSize: tokens.typography.body.fontSize,
+  fontWeight: tokens.typography.body.fontWeight,
+  fontFamily: tokens.typography.family,
 }
 
 const tipeOptions = [
@@ -71,18 +72,24 @@ function Field({ label, note, children }) {
           display: 'flex',
           justifyContent: 'space-between',
           alignItems: 'baseline',
-          gap: 10,
+          gap: tokens.spacing.md,
         }}
       >
-        <label style={{ color: gray.ink, fontSize: 13, fontWeight: 800 }}>
+        <label
+          style={{
+            color: tokens.colors.text.ink,
+            fontSize: tokens.typography.cardTitle.fontSize,
+            fontWeight: tokens.typography.cardTitle.fontWeight,
+          }}
+        >
           {label}
         </label>
         {note ? (
           <span
             style={{
-              color: gray.mid,
-              fontSize: 10,
-              lineHeight: 1.25,
+              color: tokens.colors.text.coolGray,
+              fontSize: tokens.typography.caption.fontSize,
+              lineHeight: tokens.typography.caption.lineHeight,
               textAlign: 'right',
             }}
           >
@@ -106,7 +113,7 @@ export default function InputCepat({ screenDate, onDateChange, onNavigate }) {
   const [manualTipe, setManualTipe] = useState('')
   const [showOverride, setShowOverride] = useState(false)
   const [catatan, setCatatan] = useState('')
-  const [toast, setToast] = useState('')
+  const [toast, setToast] = useState(false)
   const [error, setError] = useState('')
 
   useEffect(() => {
@@ -139,7 +146,6 @@ export default function InputCepat({ screenDate, onDateChange, onNavigate }) {
 
   const resetForm = () => {
     setArah(ARAH_TRANSAKSI.keluar)
-    setProyekId(proyek[0]?.id || PROYEK_UMUM_ID)
     setNominal('')
     setKategori(KATEGORI.bayarVendor)
     setManualTipe('')
@@ -170,9 +176,9 @@ export default function InputCepat({ screenDate, onDateChange, onNavigate }) {
     })
 
     setError('')
-    setToast('Tersimpan ✓')
+    setToast(true)
     resetForm()
-    window.setTimeout(() => setToast(''), 2000)
+    window.setTimeout(() => setToast(false), 2000)
   }
 
   return (
@@ -181,19 +187,19 @@ export default function InputCepat({ screenDate, onDateChange, onNavigate }) {
         width: '100%',
         maxWidth: 390,
         minHeight: 'calc(100vh - 32px)',
-        background: gray.bg,
-        border: `1px solid ${gray.mid}`,
-        boxShadow: '0 12px 32px rgba(0,0,0,0.12)',
+        background: tokens.colors.surface.page,
+        border: `1px solid ${tokens.colors.line.borderGray}`,
+        boxShadow: tokens.shadow.raised,
         boxSizing: 'border-box',
+        fontFamily: tokens.typography.family,
       }}
     >
       <header
         style={{
           display: 'grid',
-          gap: 12,
-          padding: '16px 16px 12px',
-          borderBottom: `1px solid ${gray.line}`,
-          background: gray.card,
+          gap: tokens.spacing.md,
+          padding: '18px 16px 14px',
+          background: tokens.colors.surface.white,
         }}
       >
         <div
@@ -201,14 +207,27 @@ export default function InputCepat({ screenDate, onDateChange, onNavigate }) {
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'space-between',
-            gap: 12,
+            gap: tokens.spacing.md,
           }}
         >
           <div>
-            <p style={{ margin: 0, color: gray.mid, fontSize: 11 }}>
+            <p
+              style={{
+                margin: 0,
+                color: tokens.colors.text.coolGray,
+                fontSize: tokens.typography.caption.fontSize,
+                fontWeight: tokens.typography.caption.fontWeight,
+              }}
+            >
               JPA Finance System
             </p>
-            <h1 style={{ margin: '4px 0 0', color: gray.ink, fontSize: 22 }}>
+            <h1
+              style={{
+                margin: '4px 0 0',
+                color: tokens.colors.text.ink,
+                ...tokens.typography.pageTitle,
+              }}
+            >
               Input Cepat
             </h1>
           </div>
@@ -216,9 +235,9 @@ export default function InputCepat({ screenDate, onDateChange, onNavigate }) {
             style={{
               width: 42,
               height: 42,
-              borderRadius: 8,
-              background: gray.primary,
-              color: '#fff',
+              borderRadius: tokens.radius.md,
+              background: tokens.colors.primary.jpaNavy,
+              color: tokens.colors.text.inverse,
               display: 'grid',
               placeItems: 'center',
               fontWeight: 800,
@@ -233,10 +252,11 @@ export default function InputCepat({ screenDate, onDateChange, onNavigate }) {
           style={{
             display: 'grid',
             gridTemplateColumns: '1fr auto',
-            gap: 10,
+            gap: tokens.spacing.md,
             alignItems: 'center',
-            color: gray.text,
-            fontSize: 12,
+            color: tokens.colors.text.slate,
+            fontSize: tokens.typography.caption.fontSize,
+            fontWeight: tokens.typography.caption.fontWeight,
           }}
         >
           <span>Tanggal transaksi</span>
@@ -246,32 +266,63 @@ export default function InputCepat({ screenDate, onDateChange, onNavigate }) {
             onChange={(event) => handleTanggal(event.target.value)}
             style={{
               minHeight: 36,
-              border: `1px solid ${gray.line}`,
-              borderRadius: 6,
+              border: `1px solid ${tokens.colors.line.borderGray}`,
+              borderRadius: tokens.radius.sm,
               padding: '0 8px',
-              background: gray.bg,
-              color: gray.text,
-              fontSize: 12,
+              background: tokens.colors.surface.mistBlue,
+              color: tokens.colors.text.slate,
+              fontSize: tokens.typography.caption.fontSize,
+              fontFamily: tokens.typography.family,
             }}
           />
         </label>
       </header>
 
-      <section style={{ display: 'grid', gap: 10, padding: 12 }}>
+      <section
+        style={{
+          display: 'grid',
+          gap: tokens.spacing.md,
+          padding: tokens.spacing.lg,
+          paddingBottom: tokens.spacing.xl,
+        }}
+      >
         {proyek.length === 0 ? (
           <section style={fieldStyle}>
-            <strong style={{ color: gray.ink, fontSize: 14 }}>Buat proyek dulu</strong>
-            <span style={{ color: gray.text, fontSize: 12, lineHeight: 1.4 }}>
+            <strong
+              style={{
+                color: tokens.colors.text.ink,
+                fontSize: tokens.typography.cardTitle.fontSize,
+              }}
+            >
+              Buat proyek dulu
+            </strong>
+            <span
+              style={{
+                color: tokens.colors.text.slate,
+                fontSize: tokens.typography.caption.fontSize,
+                lineHeight: tokens.typography.caption.lineHeight,
+              }}
+            >
               Belum ada proyek aktif. Kamu masih bisa mencatat Ops Perusahaan
               Umum, tetapi transaksi proyek butuh proyek aktif.
             </span>
           </section>
         ) : null}
 
-        <Field label="1. Masuk / Keluar" note="tap besar, full width">
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
+        <Field label="Masuk / Keluar" note="tap besar, full width">
+          <div
+            style={{
+              display: 'grid',
+              gridTemplateColumns: '1fr 1fr',
+              gap: tokens.spacing.sm,
+            }}
+          >
             {[ARAH_TRANSAKSI.masuk, ARAH_TRANSAKSI.keluar].map((item) => {
               const active = arah === item
+              const activeColor =
+                item === ARAH_TRANSAKSI.masuk
+                  ? tokens.colors.semantic.success
+                  : tokens.colors.semantic.error
               return (
                 <button
                   key={item}
@@ -279,12 +330,13 @@ export default function InputCepat({ screenDate, onDateChange, onNavigate }) {
                   onClick={() => handleArah(item)}
                   style={{
                     minHeight: 54,
-                    borderRadius: 6,
-                    border: `2px solid ${active ? (item === ARAH_TRANSAKSI.masuk ? gray.success : gray.danger) : gray.line}`,
-                    background: active ? (item === ARAH_TRANSAKSI.masuk ? gray.success : gray.danger) : gray.bg,
-                    color: active ? '#fff' : gray.text,
+                    borderRadius: tokens.radius.md,
+                    border: `1px solid ${active ? activeColor : tokens.colors.line.borderGray}`,
+                    background: active ? activeColor : tokens.colors.surface.white,
+                    color: active ? tokens.colors.text.inverse : tokens.colors.text.slate,
                     fontSize: 16,
                     fontWeight: 900,
+                    fontFamily: tokens.typography.family,
                     textTransform: 'capitalize',
                   }}
                 >
@@ -295,7 +347,7 @@ export default function InputCepat({ screenDate, onDateChange, onNavigate }) {
           </div>
         </Field>
 
-        <Field label="2. Proyek" note="aktif + Ops Umum">
+        <Field label="Proyek" note="aktif + Ops Umum">
           <select
             value={proyekId}
             onChange={(event) => {
@@ -312,12 +364,17 @@ export default function InputCepat({ screenDate, onDateChange, onNavigate }) {
               </option>
             ))}
           </select>
-          <span style={{ color: gray.mid, fontSize: 11 }}>
+          <span
+            style={{
+              color: tokens.colors.text.coolGray,
+              fontSize: tokens.typography.caption.fontSize,
+            }}
+          >
             {selectedProject?.jenis || '-'} | {selectedProject?.klien || '-'}
           </span>
         </Field>
 
-        <Field label="3. Nominal" note="keyboard angka">
+        <Field label="Nominal" note="keyboard angka">
           <input
             type="number"
             inputMode="numeric"
@@ -327,9 +384,13 @@ export default function InputCepat({ screenDate, onDateChange, onNavigate }) {
             style={{
               ...inputStyle,
               minHeight: 52,
-              fontSize: 22,
+              fontSize: 24,
               fontWeight: 900,
             }}
+          />
+          <QuickAmountChips
+            value={Number(nominal)}
+            onChange={(value) => setNominal(String(value))}
           />
           <div
             style={{
@@ -337,11 +398,11 @@ export default function InputCepat({ screenDate, onDateChange, onNavigate }) {
               display: 'flex',
               alignItems: 'center',
               padding: '0 10px',
-              borderRadius: 6,
-              background: gray.bg,
-              border: `1px dashed ${gray.mid}`,
-              color: gray.text,
-              fontSize: 13,
+              borderRadius: tokens.radius.sm,
+              background: tokens.colors.surface.mistBlue,
+              border: `1px dashed ${tokens.colors.line.lineBlue}`,
+              color: tokens.colors.text.slate,
+              fontSize: tokens.typography.body.fontSize,
               fontWeight: 800,
             }}
           >
@@ -349,7 +410,7 @@ export default function InputCepat({ screenDate, onDateChange, onNavigate }) {
           </div>
         </Field>
 
-        <Field label="4. Kategori" note="filter ikut arah">
+        <Field label="Kategori" note="filter ikut arah">
           <select
             value={kategori}
             onChange={(event) => {
@@ -366,39 +427,40 @@ export default function InputCepat({ screenDate, onDateChange, onNavigate }) {
           </select>
         </Field>
 
-        <Field label="5. Tipe" note="auto, bisa override">
+        <Field label="Tipe transaksi" note="auto, bisa diubah">
           <div
             style={{
               minHeight: 42,
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'space-between',
-              gap: 10,
+              gap: tokens.spacing.md,
               padding: '0 10px',
-              border: `1px dashed ${gray.mid}`,
-              borderRadius: 6,
-              background: gray.bg,
-              color: gray.text,
-              fontSize: 13,
+              border: `1px dashed ${tokens.colors.line.lineBlue}`,
+              borderRadius: tokens.radius.sm,
+              background: tokens.colors.surface.mistBlue,
+              color: tokens.colors.text.slate,
+              fontSize: tokens.typography.body.fontSize,
             }}
           >
             <span>Auto</span>
-            <strong style={{ color: gray.ink }}>{autoTipe}</strong>
+            <strong style={{ color: tokens.colors.text.ink }}>{autoTipe}</strong>
           </div>
           <button
             type="button"
             onClick={() => setShowOverride((value) => !value)}
             style={{
               minHeight: 48,
-              borderRadius: 6,
-              border: `1px solid ${gray.mid}`,
-              background: gray.card,
-              color: gray.ink,
-              fontSize: 12,
+              borderRadius: tokens.radius.md,
+              border: `1px solid ${tokens.colors.line.lineBlue}`,
+              background: tokens.colors.surface.white,
+              color: tokens.colors.primary.jpaNavy,
+              fontSize: tokens.typography.body.fontSize,
               fontWeight: 800,
+              fontFamily: tokens.typography.family,
             }}
           >
-            {showOverride ? 'Tutup override' : 'Override manual'}
+            {showOverride ? 'Tutup ubah tipe' : 'Ubah tipe'}
           </button>
           {showOverride ? (
             <select
@@ -415,7 +477,7 @@ export default function InputCepat({ screenDate, onDateChange, onNavigate }) {
           ) : null}
         </Field>
 
-        <Field label="6. Catatan" note="opsional">
+        <Field label="Catatan" note="opsional">
           <input
             type="text"
             value={catatan}
@@ -428,12 +490,12 @@ export default function InputCepat({ screenDate, onDateChange, onNavigate }) {
         {error ? (
           <div
             style={{
-              padding: 10,
-              border: `1px solid ${gray.ink}`,
-              borderRadius: 8,
-              background: gray.card,
-              color: gray.ink,
-              fontSize: 12,
+              padding: tokens.spacing.md,
+              border: `1px solid ${tokens.colors.danger.border}`,
+              borderRadius: tokens.radius.md,
+              background: tokens.colors.danger.tint,
+              color: tokens.colors.semantic.error,
+              fontSize: tokens.typography.caption.fontSize,
               fontWeight: 800,
             }}
           >
@@ -441,31 +503,20 @@ export default function InputCepat({ screenDate, onDateChange, onNavigate }) {
           </div>
         ) : null}
 
-        <WireButton onClick={handleSubmit}>Simpan Transaksi</WireButton>
+        <button
+          type="button"
+          onClick={handleSubmit}
+          style={{
+            ...componentStyles.primaryButton,
+            width: '100%',
+            fontSize: 15,
+            fontFamily: tokens.typography.family,
+          }}
+        >
+          Simpan Transaksi
+        </button>
 
-        {toast ? (
-          <div
-            style={{
-              position: 'fixed',
-              left: '50%',
-              bottom: 74,
-              transform: 'translateX(-50%)',
-              width: 'calc(100% - 32px)',
-              maxWidth: 358,
-              minHeight: 44,
-              display: 'grid',
-              placeItems: 'center',
-              borderRadius: 8,
-              background: gray.primary,
-              color: '#fff',
-              fontSize: 13,
-              fontWeight: 900,
-              zIndex: 30,
-            }}
-          >
-            {toast}
-          </div>
-        ) : null}
+        <Toast visible={toast} />
       </section>
 
       <BottomNav activePage="input" onNavigate={onNavigate} />
