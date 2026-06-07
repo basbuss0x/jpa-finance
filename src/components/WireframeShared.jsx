@@ -25,36 +25,41 @@ export const fmtIDR = (value) =>
 export function PageFrame({ title, subtitle, children, activePage, onNavigate }) {
   return (
     <div
+      className="app-frame"
       style={{
-        width: '100%',
-        maxWidth: 390,
-        minHeight: 'calc(100vh - 32px)',
-        background: gray.bg,
-        border: `1px solid ${gray.mid}`,
-        boxShadow: '0 12px 32px rgba(0,0,0,0.12)',
+        background: tokens.colors.surface.page,
         boxSizing: 'border-box',
       }}
     >
       <header
+        className="app-header"
         style={{
           padding: '16px 16px 12px',
-          borderBottom: `1px solid ${gray.line}`,
-          background: gray.card,
+          borderBottom: `1px solid ${tokens.colors.line.borderGray}`,
+          background: 'rgba(255, 255, 255, 0.92)',
         }}
       >
-        <p style={{ margin: 0, fontSize: 11, color: gray.mid }}>
+        <p style={{ margin: 0, fontSize: 11, color: tokens.colors.text.coolGray }}>
           JPA Finance System
         </p>
-        <h1 style={{ margin: '4px 0 0', fontSize: 22, color: gray.ink }}>
+        <h1 style={{ margin: '4px 0 0', fontSize: 22, color: tokens.colors.text.ink }}>
           {title}
         </h1>
         {subtitle ? (
-          <p style={{ margin: '6px 0 0', fontSize: 12, color: gray.text }}>
+          <p style={{ margin: '6px 0 0', fontSize: 12, color: tokens.colors.text.slate }}>
             {subtitle}
           </p>
         ) : null}
       </header>
-      <section style={{ display: 'grid', gap: 10, padding: 12 }}>{children}</section>
+      <section
+        style={{
+          display: 'grid',
+          gap: 10,
+          padding: '12px 12px calc(96px + env(safe-area-inset-bottom))',
+        }}
+      >
+        {children}
+      </section>
       <BottomNav activePage={activePage} onNavigate={onNavigate} />
     </div>
   )
@@ -220,17 +225,16 @@ export function BottomNav({ activePage, onNavigate }) {
   return (
     <nav
       aria-label="Navigasi utama wireframe"
+      className="app-bottom-nav"
       style={{
         display: 'grid',
         gridTemplateColumns: 'repeat(4, 1fr)',
         gap: 4,
         minHeight: 68,
-        padding: '8px 10px 10px',
-        background: tokens.colors.surface.white,
-        boxShadow: '0 -8px 20px rgba(15, 23, 42, 0.06)',
-        position: 'sticky',
-        bottom: 0,
-        zIndex: 10,
+        padding: '8px 10px calc(10px + env(safe-area-inset-bottom))',
+        background: 'rgba(255, 255, 255, 0.92)',
+        borderTop: `1px solid ${tokens.colors.line.borderGray}`,
+        boxShadow: '0 -8px 24px rgba(15, 23, 42, 0.08)',
       }}
     >
       {items.map((item) => {

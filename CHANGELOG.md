@@ -32,8 +32,9 @@ Kategori yang dipakai:
 - Insight card Dashboard dengan priority logic berdasarkan status backup, piutang, dana talangan, kategori pengeluaran, dan transaksi hari ini.
 - Empty state spesifik per filter di Daftar Proyek.
 - Screenshot after redesign untuk halaman Input Cepat, Daftar Proyek, Detail Proyek, Dashboard, dan Pengaturan & Backup di `docs/screenshots/after/`.
-- Export Excel `.xls` untuk laporan Proyek, Transaksi, dan Settings.
+- Export Excel `.xlsx` profesional dengan sheet Dashboard, Proyek, Transaksi, Kas_Masuk, Kas_Keluar, Ringkasan_REG_PRJ, QA_Checks, dan Settings.
 - Pencarian transaksi dan filter rentang tanggal di Histori Transaksi Detail Proyek.
+- PWA metadata dasar: manifest, app icon, theme color, dan mobile web app title `JPA Finance`.
 
 ### Changed
 - Bottom navigation dibuat lebih ringan dan mobile-native dengan icon + label, active Action Blue, dan inactive Cool Gray.
@@ -44,7 +45,8 @@ Kategori yang dipakai:
 - Backup & Pengaturan membedakan Export sebagai primary solid Action Blue dan Import sebagai secondary border-only.
 - Danger Zone pada Backup & Pengaturan dipisah visual dengan red tint dan border merah.
 - Detail Proyek memakai token baru untuk card, typography, button, form, bottom sheet, toast, dan danger zone tanpa perubahan layout besar.
-- Kode proyek baru dibedakan berdasarkan jenis transaksi: `REG-###` untuk Regular dan `PRJ-###` untuk Project.
+- Kode proyek baru dibedakan berdasarkan jenis transaksi dan tahun: `REG-YYYY-###` untuk Regular dan `PRJ-YYYY-###` untuk Project.
+- App shell dibuat lebih terasa native di HP: fullscreen mobile, safe-area support, sticky header, fixed bottom nav, dan desktop preview tetap center max-width 390.
 
 ### Fixed
 - Toast Input Cepat diverifikasi muncul di atas bottom navigation dan auto-dismiss secara visual setelah 2 detik.

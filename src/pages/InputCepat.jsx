@@ -183,23 +183,21 @@ export default function InputCepat({ screenDate, onDateChange, onNavigate }) {
 
   return (
     <div
+      className="app-frame"
       style={{
-        width: '100%',
-        maxWidth: 390,
-        minHeight: 'calc(100vh - 32px)',
         background: tokens.colors.surface.page,
-        border: `1px solid ${tokens.colors.line.borderGray}`,
-        boxShadow: tokens.shadow.raised,
         boxSizing: 'border-box',
         fontFamily: tokens.typography.family,
       }}
     >
       <header
+        className="app-header"
         style={{
           display: 'grid',
           gap: tokens.spacing.md,
           padding: '18px 16px 14px',
-          background: tokens.colors.surface.white,
+          borderBottom: `1px solid ${tokens.colors.line.borderGray}`,
+          background: 'rgba(255, 255, 255, 0.92)',
         }}
       >
         <div
@@ -282,8 +280,7 @@ export default function InputCepat({ screenDate, onDateChange, onNavigate }) {
         style={{
           display: 'grid',
           gap: tokens.spacing.md,
-          padding: tokens.spacing.lg,
-          paddingBottom: tokens.spacing.xl,
+          padding: `${tokens.spacing.lg}px ${tokens.spacing.lg}px calc(96px + env(safe-area-inset-bottom))`,
         }}
       >
         {proyek.length === 0 ? (

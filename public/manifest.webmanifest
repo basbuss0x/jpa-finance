@@ -1,0 +1,19 @@
+{
+  "name": "JPA Finance",
+  "short_name": "JPA Finance",
+  "description": "Sistem pencatatan keuangan mobile-first untuk CV Juara Pertama Abadi.",
+  "start_url": "/?page=input",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#F8FAFC",
+  "theme_color": "#F8FAFC",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

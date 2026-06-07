@@ -7,22 +7,100 @@ import Dashboard from './pages/Dashboard.jsx'
 import Pengaturan from './pages/Pengaturan.jsx'
 import TambahanWireframes from './pages/TambahanWireframes.jsx'
 
-const appShell = {
-  minHeight: '100vh',
-  margin: 0,
-  background: '#e5e1d8',
-  color: '#1c1917',
-  fontFamily:
-    '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif',
-}
+function GlobalAppStyles() {
+  return (
+    <style>
+      {`
+        html, body, #root {
+          min-height: 100%;
+          margin: 0;
+        }
 
-const centerStage = {
-  minHeight: '100vh',
-  display: 'flex',
-  justifyContent: 'center',
-  alignItems: 'flex-start',
-  padding: 16,
-  boxSizing: 'border-box',
+        body {
+          background: #F8FAFC;
+          color: #111827;
+          font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+          overscroll-behavior-y: none;
+        }
+
+        * {
+          -webkit-tap-highlight-color: transparent;
+        }
+
+        .app-shell {
+          min-height: 100dvh;
+          background: #F8FAFC;
+        }
+
+        .app-stage {
+          min-height: 100dvh;
+          display: flex;
+          justify-content: center;
+          align-items: flex-start;
+          box-sizing: border-box;
+        }
+
+        .app-frame {
+          width: 100%;
+          min-height: 100dvh;
+          background: #F8FAFC;
+          box-sizing: border-box;
+          position: relative;
+          overflow-x: hidden;
+        }
+
+        .app-header {
+          position: sticky;
+          top: 0;
+          z-index: 20;
+          padding-top: calc(14px + env(safe-area-inset-top));
+          backdrop-filter: blur(18px);
+          -webkit-backdrop-filter: blur(18px);
+        }
+
+        .app-content {
+          padding-bottom: calc(96px + env(safe-area-inset-bottom));
+        }
+
+        .app-bottom-nav {
+          position: fixed;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          width: 100%;
+          z-index: 50;
+          box-sizing: border-box;
+          padding-bottom: calc(10px + env(safe-area-inset-bottom));
+          backdrop-filter: blur(18px);
+          -webkit-backdrop-filter: blur(18px);
+        }
+
+        @media (min-width: 431px) {
+          .app-shell {
+            background: #e5e1d8;
+          }
+
+          .app-stage {
+            padding: 16px;
+          }
+
+          .app-frame {
+            max-width: 390px;
+            min-height: calc(100vh - 32px);
+            border: 1px solid #CBD5E1;
+            box-shadow: 0 12px 32px rgba(0, 43, 104, 0.12);
+          }
+
+          .app-bottom-nav {
+            left: 50%;
+            right: auto;
+            transform: translateX(-50%);
+            max-width: 390px;
+          }
+        }
+      `}
+    </style>
+  )
 }
 
 function App() {
@@ -95,11 +173,14 @@ function App() {
   }
 
   return (
-    <main style={appShell}>
-      <div style={centerStage}>
-        {screens[page]}
-      </div>
-    </main>
+    <>
+      <GlobalAppStyles />
+      <main className="app-shell">
+        <div className="app-stage">
+          {screens[page]}
+        </div>
+      </main>
+    </>
   )
 }
 

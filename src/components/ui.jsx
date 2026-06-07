@@ -17,8 +17,8 @@ export function Toast({ visible, children = 'Transaksi tersimpan ✓' }) {
       style={{
         position: 'fixed',
         left: '50%',
-        bottom: 84,
-        zIndex: 40,
+        bottom: 'calc(92px + env(safe-area-inset-bottom))',
+        zIndex: 70,
         transform: `translateX(-50%) translateY(${visible ? 0 : 12}px)`,
         opacity: visible ? 1 : 0,
         pointerEvents: 'none',

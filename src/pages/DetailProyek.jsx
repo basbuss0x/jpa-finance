@@ -612,11 +612,26 @@ export default function DetailProyek({ proyekId, onNavigate }) {
       activePage="projects"
       onNavigate={onNavigate}
     >
-      <ActionButton variant="secondary" onClick={() => onNavigate?.('projects')}>
-        Kembali ke Daftar Proyek
-      </ActionButton>
+      <button
+        type="button"
+        onClick={() => onNavigate?.('projects')}
+        style={{
+          minHeight: 40,
+          width: 'fit-content',
+          padding: '0 2px',
+          border: 0,
+          background: 'transparent',
+          color: tokens.colors.primary.actionBlue,
+          fontFamily: tokens.typography.family,
+          fontSize: 13,
+          fontWeight: 800,
+          textAlign: 'left',
+        }}
+      >
+        ← Daftar Proyek
+      </button>
 
-      <DetailCard title="Header proyek" note="identitas ringkas">
+      <DetailCard title="Info proyek" note="data utama">
         <LabelRow label="Jenis" value={<Badge>{currentProyek.jenis}</Badge>} />
         <LabelRow label="Klien" value={currentProyek.klien || '-'} />
         <LabelRow label="Sumber" value={currentProyek.sumber || '-'} />
@@ -632,12 +647,13 @@ export default function DetailProyek({ proyekId, onNavigate }) {
         </span>
       </DetailCard>
 
-      <DetailCard title="Ringkasan keuangan" note="computed dari transaksi">
+      <DetailCard title="Ringkasan keuangan" note="dihitung otomatis">
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: tokens.spacing.sm }}>
           <NumberTile label="Total Dana Talangan" value={summary.totalModal} color={tokens.colors.primary.corporateBlue} />
           <NumberTile label="Total Ops Proyek" value={summary.totalOps} />
           <NumberTile label="Total Masuk" value={summary.totalMasuk} color={tokens.colors.semantic.success} />
-          <NumberTile label="Potongan Ops Perush" value={summary.potOps} />
+          <NumberTile label="Potongan Ops Perusahaan" value={summary.potOps} />
+          <NumberTile label="Total Biaya" value={summary.totalBiaya} />
           <NumberTile
             label="Profit Bersih"
             value={summary.profitBersih}
@@ -647,7 +663,7 @@ export default function DetailProyek({ proyekId, onNavigate }) {
         </div>
       </DetailCard>
 
-      <DetailCard title="Potongan Ops Perusahaan" note="manual, autosave on blur">
+      <DetailCard title="Potongan Ops Perusahaan" note="tersimpan otomatis">
         <input
           type="number"
           inputMode="numeric"
@@ -662,7 +678,7 @@ export default function DetailProyek({ proyekId, onNavigate }) {
         </span>
       </DetailCard>
 
-      <DetailCard title="Progress pembayaran" note="Total Masuk / Nilai Pesanan">
+      <DetailCard title="Progress pembayaran" note="masuk dibanding nilai pesanan">
         <ProgressBar
           value={summary.progressPct}
           color={summary.progressPct >= 100 ? tokens.colors.semantic.success : tokens.colors.primary.actionBlue}

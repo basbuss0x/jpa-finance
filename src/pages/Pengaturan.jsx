@@ -155,9 +155,9 @@ export default function Pengaturan({ onNavigate }) {
     showToast('Backup diexport')
   }
 
-  const handleExportExcel = () => {
-    exportExcel()
-    showToast('Excel diexport')
+  const handleExportExcel = async () => {
+    await exportExcel()
+    showToast('Workbook Excel diexport')
   }
 
   const handleFileChange = (event) => {
@@ -291,7 +291,7 @@ export default function Pengaturan({ onNavigate }) {
 
         <div style={{ display: 'grid', gap: tokens.spacing.sm }}>
           <SecondaryAction onClick={handleExportExcel}>
-            Export Excel (.xls)
+            Export Excel (.xlsx)
           </SecondaryAction>
           <span
             style={{
@@ -299,7 +299,8 @@ export default function Pengaturan({ onNavigate }) {
               fontSize: tokens.typography.caption.fontSize,
             }}
           >
-            Unduh laporan Proyek, Transaksi, dan Settings untuk dibuka di Excel.
+            Unduh workbook profesional berisi Dashboard, Proyek, Transaksi,
+            Kas Masuk/Keluar, Ringkasan REG/PRJ, QA Checks, dan Settings.
           </span>
         </div>
 

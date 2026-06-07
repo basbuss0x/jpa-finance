@@ -14,11 +14,19 @@ export const fmtShort = (n) => {
   return String(n)
 }
 
-export const generateProyekId = (existingProyek = [], jenis = JENIS_PROYEK.project) => {
-  const prefix = jenis === JENIS_PROYEK.regular ? 'REG' : 'PRJ'
+export const generateProyekId = (
+  existingProyek = [],
+  jenis = JENIS_PROYEK.project,
+  date = new Date()
+) => {
+  const typePrefix = jenis === JENIS_PROYEK.regular ? 'REG' : 'PRJ'
+  const year = date.getFullYear()
+  const prefix = `${typePrefix}-${year}`
   const nextNumber =
-    existingProyek.filter((item) => String(item.id || '').startsWith(`${prefix}-`))
-      .length + 1
+    existingProyek.reduce((max, item) => {
+      const match = String(item.id || '').match(new RegExp(`^${prefix}-(\\d+)$`))
+      return match ? Math.max(max, Number(match[1]) || 0) : max
+    }, 0) + 1
   return `${prefix}-${String(nextNumber).padStart(3, '0')}`
 }
 
