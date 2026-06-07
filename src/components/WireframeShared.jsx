@@ -1,4 +1,5 @@
 import React from 'react'
+import { tokens } from '../designTokens'
 
 export const gray = {
   primary: '#1B2A4A',
@@ -210,10 +211,10 @@ export function Badge({ children }) {
 
 export function BottomNav({ activePage, onNavigate }) {
   const items = [
-    { id: 'input', label: 'Input' },
-    { id: 'projects', label: 'Proyek' },
-    { id: 'dashboard', label: 'Dashboard' },
-    { id: 'settings', label: 'Backup' },
+    { id: 'input', label: 'Input', icon: 'input' },
+    { id: 'projects', label: 'Proyek', icon: 'folder' },
+    { id: 'dashboard', label: 'Dashboard', icon: 'chart' },
+    { id: 'settings', label: 'Backup', icon: 'backup' },
   ]
 
   return (
@@ -222,33 +223,100 @@ export function BottomNav({ activePage, onNavigate }) {
       style={{
         display: 'grid',
         gridTemplateColumns: 'repeat(4, 1fr)',
-        gap: 6,
-        padding: 10,
-        borderTop: `1px solid ${gray.line}`,
-        background: gray.card,
+        gap: 4,
+        minHeight: 68,
+        padding: '8px 10px 10px',
+        background: tokens.colors.surface.white,
+        boxShadow: '0 -8px 20px rgba(15, 23, 42, 0.06)',
+        position: 'sticky',
+        bottom: 0,
+        zIndex: 10,
       }}
     >
       {items.map((item) => {
         const active = activePage === item.id
+        const color = active
+          ? tokens.colors.primary.actionBlue
+          : tokens.colors.text.coolGray
         return (
           <button
             key={item.id}
             type="button"
             onClick={() => onNavigate?.(item.id)}
             style={{
-              minHeight: 48,
-              borderRadius: 6,
-              border: `1px solid ${active ? gray.gold : gray.line}`,
-              background: active ? gray.primary : gray.bg,
-              color: active ? '#fff' : gray.text,
+              minHeight: 50,
+              borderRadius: tokens.radius.md,
+              border: '1px solid transparent',
+              background: active ? tokens.colors.surface.iceBlue : 'transparent',
+              color,
+              display: 'grid',
+              placeItems: 'center',
+              alignContent: 'center',
+              gap: 3,
               fontSize: 11,
-              fontWeight: 700,
+              fontWeight: active ? 800 : 700,
+              fontFamily: tokens.typography.family,
             }}
           >
+            <NavIcon name={item.icon} color={color} />
             {item.label}
           </button>
         )
       })}
     </nav>
+  )
+}
+
+function NavIcon({ name, color }) {
+  const common = {
+    width: 20,
+    height: 20,
+    viewBox: '0 0 24 24',
+    fill: 'none',
+    stroke: color,
+    strokeWidth: 2,
+    strokeLinecap: 'round',
+    strokeLinejoin: 'round',
+    'aria-hidden': true,
+  }
+
+  if (name === 'folder') {
+    return (
+      <svg {...common}>
+        <path d="M3 7.5h6l2 2H21" />
+        <path d="M3 7.5v10A2.5 2.5 0 0 0 5.5 20h13A2.5 2.5 0 0 0 21 17.5v-8" />
+      </svg>
+    )
+  }
+
+  if (name === 'chart') {
+    return (
+      <svg {...common}>
+        <path d="M4 19V5" />
+        <path d="M4 19h16" />
+        <path d="M8 15v-4" />
+        <path d="M12 15V8" />
+        <path d="M16 15v-6" />
+      </svg>
+    )
+  }
+
+  if (name === 'backup') {
+    return (
+      <svg {...common}>
+        <path d="M12 3v10" />
+        <path d="m8 9 4 4 4-4" />
+        <path d="M5 17v1.5A2.5 2.5 0 0 0 7.5 21h9A2.5 2.5 0 0 0 19 18.5V17" />
+      </svg>
+    )
+  }
+
+  return (
+    <svg {...common}>
+      <path d="M5 5h14v14H5z" />
+      <path d="M8 9h8" />
+      <path d="M8 13h5" />
+      <path d="M17 16h2" />
+    </svg>
   )
 }
