@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react'
 import {
   exportBackup,
+  exportExcel,
   getSettings,
   importBackup,
   resetAllData,
@@ -154,6 +155,11 @@ export default function Pengaturan({ onNavigate }) {
     showToast('Backup diexport')
   }
 
+  const handleExportExcel = () => {
+    exportExcel()
+    showToast('Excel diexport')
+  }
+
   const handleFileChange = (event) => {
     const file = event.target.files?.[0]
     setError('')
@@ -280,6 +286,20 @@ export default function Pengaturan({ onNavigate }) {
             }}
           >
             Simpan file backup ke perangkat.
+          </span>
+        </div>
+
+        <div style={{ display: 'grid', gap: tokens.spacing.sm }}>
+          <SecondaryAction onClick={handleExportExcel}>
+            Export Excel (.xls)
+          </SecondaryAction>
+          <span
+            style={{
+              color: tokens.colors.text.coolGray,
+              fontSize: tokens.typography.caption.fontSize,
+            }}
+          >
+            Unduh laporan Proyek, Transaksi, dan Settings untuk dibuka di Excel.
           </span>
         </div>
 

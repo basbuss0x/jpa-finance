@@ -1,4 +1,4 @@
-import { TIPE_TRANSAKSI } from './constants'
+import { JENIS_PROYEK, TIPE_TRANSAKSI } from './constants'
 
 export const fmtIDR = (n) =>
   new Intl.NumberFormat('id-ID', {
@@ -14,9 +14,12 @@ export const fmtShort = (n) => {
   return String(n)
 }
 
-export const generateProyekId = (existingProyek = []) => {
-  const n = existingProyek.length + 1
-  return `PRJ-${String(n).padStart(3, '0')}`
+export const generateProyekId = (existingProyek = [], jenis = JENIS_PROYEK.project) => {
+  const prefix = jenis === JENIS_PROYEK.regular ? 'REG' : 'PRJ'
+  const nextNumber =
+    existingProyek.filter((item) => String(item.id || '').startsWith(`${prefix}-`))
+      .length + 1
+  return `${prefix}-${String(nextNumber).padStart(3, '0')}`
 }
 
 export const sumNominalByTipe = (transaksi = [], tipe) =>

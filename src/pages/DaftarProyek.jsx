@@ -405,7 +405,7 @@ function TambahProyekForm({ proyek, onCancel, onSaved }) {
     }
 
     addProyek({
-      id: generateProyekId(proyek),
+      id: generateProyekId(proyek, jenis),
       jenis,
       nama: nama.trim(),
       sumber,

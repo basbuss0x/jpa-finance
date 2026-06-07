@@ -255,6 +255,10 @@ function EmptyHistory() {
   )
 }
 
+function normalizeText(value) {
+  return String(value || '').toLowerCase().trim()
+}
+
 function DeleteSheet({ transaksi, onCancel, onConfirm }) {
   if (!transaksi) return null
 
@@ -502,6 +506,9 @@ export default function DetailProyek({ proyekId, onNavigate }) {
   const [editMode, setEditMode] = useState(false)
   const [deleteTarget, setDeleteTarget] = useState(null)
   const [toast, setToast] = useState('')
+  const [searchTerm, setSearchTerm] = useState('')
+  const [dateFrom, setDateFrom] = useState('')
+  const [dateTo, setDateTo] = useState('')
 
   const reload = () => {
     setProyek(getProyek())
@@ -528,6 +535,30 @@ export default function DetailProyek({ proyekId, onNavigate }) {
   const transaksiProyek = transaksi
     .filter((item) => item.proyekId === currentProyek?.id)
     .sort((a, b) => String(b.tanggal).localeCompare(String(a.tanggal)))
+
+  const filteredTransaksiProyek = transaksiProyek.filter((item) => {
+    const query = normalizeText(searchTerm)
+    const haystack = normalizeText(
+      [
+        item.kategori,
+        item.catatan,
+        item.tipe,
+        item.arah,
+        item.nominal,
+        item.tanggal,
+      ].join(' ')
+    )
+    const searchMatch = !query || haystack.includes(query)
+    const fromMatch = !dateFrom || String(item.tanggal || '') >= dateFrom
+    const toMatch = !dateTo || String(item.tanggal || '') <= dateTo
+    return searchMatch && fromMatch && toMatch
+  })
+
+  const resetHistoryFilter = () => {
+    setSearchTerm('')
+    setDateFrom('')
+    setDateTo('')
+  }
 
   const showToast = (message) => {
     setToast(message)
@@ -641,9 +672,69 @@ export default function DetailProyek({ proyekId, onNavigate }) {
         </strong>
       </DetailCard>
 
-      <DetailCard title="Histori transaksi" note="terbaru di atas">
-        {transaksiProyek.length > 0 ? (
-          transaksiProyek.map((item) => (
+      <DetailCard
+        title="Histori transaksi"
+        note={`${filteredTransaksiProyek.length} dari ${transaksiProyek.length}`}
+      >
+        <div style={{ display: 'grid', gap: tokens.spacing.sm }}>
+          <input
+            type="search"
+            value={searchTerm}
+            onChange={(event) => setSearchTerm(event.target.value)}
+            placeholder="Cari kategori, catatan, tipe..."
+            style={inputStyle}
+          />
+          <div
+            style={{
+              display: 'grid',
+              gridTemplateColumns: '1fr 1fr',
+              gap: tokens.spacing.sm,
+            }}
+          >
+            <label style={{ display: 'grid', gap: tokens.spacing.xs }}>
+              <span style={{ color: tokens.colors.text.coolGray, fontSize: 11 }}>
+                Dari tanggal
+              </span>
+              <input
+                type="date"
+                value={dateFrom}
+                onChange={(event) => setDateFrom(event.target.value)}
+                style={inputStyle}
+              />
+            </label>
+            <label style={{ display: 'grid', gap: tokens.spacing.xs }}>
+              <span style={{ color: tokens.colors.text.coolGray, fontSize: 11 }}>
+                Sampai tanggal
+              </span>
+              <input
+                type="date"
+                value={dateTo}
+                onChange={(event) => setDateTo(event.target.value)}
+                style={inputStyle}
+              />
+            </label>
+          </div>
+          {(searchTerm || dateFrom || dateTo) ? (
+            <button
+              type="button"
+              onClick={resetHistoryFilter}
+              style={{
+                minHeight: 40,
+                borderRadius: tokens.radius.md,
+                border: `1px solid ${tokens.colors.line.lineBlue}`,
+                background: tokens.colors.surface.white,
+                color: tokens.colors.primary.actionBlue,
+                fontFamily: tokens.typography.family,
+                fontWeight: 800,
+              }}
+            >
+              Reset Filter
+            </button>
+          ) : null}
+        </div>
+
+        {filteredTransaksiProyek.length > 0 ? (
+          filteredTransaksiProyek.map((item) => (
             <div
               key={item.id}
               style={{
@@ -696,6 +787,13 @@ export default function DetailProyek({ proyekId, onNavigate }) {
               </div>
             </div>
           ))
+        ) : transaksiProyek.length > 0 ? (
+          <EmptyState
+            title="Tidak ada transaksi yang cocok."
+            description="Ubah kata kunci atau rentang tanggal untuk melihat transaksi lain."
+            ctaLabel="Reset Filter"
+            onCta={resetHistoryFilter}
+          />
         ) : (
           <EmptyHistory />
         )}

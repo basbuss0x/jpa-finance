@@ -24,14 +24,38 @@ Kategori yang dipakai:
 
 ## [Unreleased] — v1.2.0
 
-### Planned
-- UI redesign berdasarkan DESIGN_BRIEF.md v1.1
-- Quick amount chips di Input Cepat
-- Toast component
-- Contextual status banner di Dashboard
-- Insight card dengan priority logic
-- Empty state per filter di Daftar Proyek
-- Export Excel (backlog)
+### Added
+- Shared design tokens untuk warna, typography, spacing, radius, dan shadow berdasarkan `docs/DESIGN_BRIEF.md`.
+- Reusable UI components: `Toast`, `QuickAmountChips`, `StatusBanner`, `InsightCard`, dan `EmptyState`.
+- Quick amount chips di Input Cepat: `50k`, `100k`, `250k`, `500k`, `1jt`, dan `5jt`.
+- Contextual status banner di Dashboard menggantikan label mentah `UNTUNG` / `RUGI`.
+- Insight card Dashboard dengan priority logic berdasarkan status backup, piutang, dana talangan, kategori pengeluaran, dan transaksi hari ini.
+- Empty state spesifik per filter di Daftar Proyek.
+- Screenshot after redesign untuk halaman Input Cepat, Daftar Proyek, Detail Proyek, Dashboard, dan Pengaturan & Backup di `docs/screenshots/after/`.
+- Export Excel `.xls` untuk laporan Proyek, Transaksi, dan Settings.
+- Pencarian transaksi dan filter rentang tanggal di Histori Transaksi Detail Proyek.
+
+### Changed
+- Bottom navigation dibuat lebih ringan dan mobile-native dengan icon + label, active Action Blue, dan inactive Cool Gray.
+- Input Cepat memakai token UI baru, toast reusable, quick chips, dan copy `Ubah tipe`.
+- Setelah simpan transaksi, nominal dikosongkan dan proyek tetap selected.
+- Dashboard memakai token baru, Dana Talangan selalu Corporate Blue, chart low-data state, dan active project summary.
+- Daftar Proyek memakai card, chip, typography, dan project card yang lebih mudah discan.
+- Backup & Pengaturan membedakan Export sebagai primary solid Action Blue dan Import sebagai secondary border-only.
+- Danger Zone pada Backup & Pengaturan dipisah visual dengan red tint dan border merah.
+- Detail Proyek memakai token baru untuk card, typography, button, form, bottom sheet, toast, dan danger zone tanpa perubahan layout besar.
+- Kode proyek baru dibedakan berdasarkan jenis transaksi: `REG-###` untuk Regular dan `PRJ-###` untuk Project.
+
+### Fixed
+- Toast Input Cepat diverifikasi muncul di atas bottom navigation dan auto-dismiss secara visual setelah 2 detik.
+- Manual test checklist `docs/DESIGN_BRIEF.md` Section 22 passed.
+- Production build `npm run build` passed setelah redesign dan setelah merge ke `master`.
+
+### Note
+- localStorage keys tetap: `jpa_proyek`, `jpa_transaksi`, `jpa_settings`.
+- Kalkulasi finance tidak diubah: `hitungProyek` dan `sumNominalByTipe` tetap sama.
+- v1.2.0 sudah di-deploy ke production Vercel: `https://jpa-finance.vercel.app`.
+- Branch `feature/ui-redesign-v1.2` sudah di-merge ke `master` pada commit `4445481`.
 
 ---
 
