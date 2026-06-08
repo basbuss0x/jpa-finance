@@ -230,7 +230,7 @@ export default function Pengaturan({ onNavigate }) {
       activePage="settings"
       onNavigate={onNavigate}
     >
-      <SettingsCard title="Status Backup" note="data lokal">
+      <SettingsCard title="Status Backup">
         <div
           style={{
             display: 'grid',
@@ -268,7 +268,7 @@ export default function Pengaturan({ onNavigate }) {
         </div>
       </SettingsCard>
 
-      <SettingsCard title="Backup data" note="export / import JSON">
+      <SettingsCard title="Backup data">
         <input
           ref={fileInputRef}
           type="file"
@@ -362,7 +362,7 @@ export default function Pengaturan({ onNavigate }) {
         </p>
       </SettingsCard>
 
-      <SettingsCard title="Info aplikasi" note="editable">
+      <SettingsCard title="Info aplikasi">
         <label style={{ display: 'grid', gap: tokens.spacing.sm }}>
           <span
             style={{
@@ -403,7 +403,6 @@ export default function Pengaturan({ onNavigate }) {
 
       <SettingsCard
         title="Zona Berbahaya"
-        note="konfirmasi 2 langkah"
         style={{
           marginTop: tokens.spacing.xl,
           background: tokens.colors.danger.tint,

@@ -277,6 +277,7 @@ export default function InputCepat({ screenDate, onDateChange, onNavigate }) {
       </header>
 
       <section
+        className="app-content motion-page"
         style={{
           display: 'grid',
           gap: tokens.spacing.md,
@@ -306,7 +307,7 @@ export default function InputCepat({ screenDate, onDateChange, onNavigate }) {
           </section>
         ) : null}
 
-        <Field label="Masuk / Keluar" note="tap besar, full width">
+        <Field label="Masuk / Keluar">
           <div
             style={{
               display: 'grid',
@@ -324,6 +325,7 @@ export default function InputCepat({ screenDate, onDateChange, onNavigate }) {
                 <button
                   key={item}
                   type="button"
+                  className="motion-pressable"
                   onClick={() => handleArah(item)}
                   style={{
                     minHeight: 54,
@@ -344,7 +346,7 @@ export default function InputCepat({ screenDate, onDateChange, onNavigate }) {
           </div>
         </Field>
 
-        <Field label="Proyek" note="aktif + Ops Umum">
+        <Field label="Proyek">
           <select
             value={proyekId}
             onChange={(event) => {
@@ -371,13 +373,13 @@ export default function InputCepat({ screenDate, onDateChange, onNavigate }) {
           </span>
         </Field>
 
-        <Field label="Nominal" note="keyboard angka">
+        <Field label="Nominal">
           <input
             type="number"
             inputMode="numeric"
             value={nominal}
             onChange={(event) => setNominal(event.target.value)}
-            placeholder="Contoh: 25000000"
+            placeholder="Masukkan nominal"
             style={{
               ...inputStyle,
               minHeight: 52,
@@ -403,11 +405,11 @@ export default function InputCepat({ screenDate, onDateChange, onNavigate }) {
               fontWeight: 800,
             }}
           >
-            Terbaca: {fmtIDR(Number(nominal))}
+            {fmtIDR(Number(nominal))}
           </div>
         </Field>
 
-        <Field label="Kategori" note="filter ikut arah">
+        <Field label="Kategori">
           <select
             value={kategori}
             onChange={(event) => {
@@ -445,6 +447,7 @@ export default function InputCepat({ screenDate, onDateChange, onNavigate }) {
           </div>
           <button
             type="button"
+            className="motion-pressable"
             onClick={() => setShowOverride((value) => !value)}
             style={{
               minHeight: 48,
@@ -474,7 +477,7 @@ export default function InputCepat({ screenDate, onDateChange, onNavigate }) {
           ) : null}
         </Field>
 
-        <Field label="Catatan" note="opsional">
+        <Field label="Catatan">
           <input
             type="text"
             value={catatan}
@@ -502,6 +505,7 @@ export default function InputCepat({ screenDate, onDateChange, onNavigate }) {
 
         <button
           type="button"
+          className="motion-pressable"
           onClick={handleSubmit}
           style={{
             ...componentStyles.primaryButton,

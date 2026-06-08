@@ -35,6 +35,9 @@ Kategori yang dipakai:
 - Export Excel `.xlsx` profesional dengan sheet Dashboard, Proyek, Transaksi, Kas_Masuk, Kas_Keluar, Ringkasan_REG_PRJ, QA_Checks, dan Settings.
 - Pencarian transaksi dan filter rentang tanggal di Histori Transaksi Detail Proyek.
 - PWA metadata dasar: manifest, app icon, theme color, dan mobile web app title `JPA Finance`.
+- Histori Transaksi Global di Dashboard untuk transaksi Regular, Project, dan UMUM dengan search, filter jenis/arah, filter tanggal, dan sort.
+- Compact preview Histori Transaksi Global: default 5 transaksi dengan tombol `Lihat semua transaksi`.
+- Motion polish ringan: page enter, card/list reveal, press feedback, bottom nav active lift, chart/progress transition, dan dukungan `prefers-reduced-motion`.
 
 ### Changed
 - Bottom navigation dibuat lebih ringan dan mobile-native dengan icon + label, active Action Blue, dan inactive Cool Gray.
@@ -47,11 +50,19 @@ Kategori yang dipakai:
 - Detail Proyek memakai token baru untuk card, typography, button, form, bottom sheet, toast, dan danger zone tanpa perubahan layout besar.
 - Kode proyek baru dibedakan berdasarkan jenis transaksi dan tahun: `REG-YYYY-###` untuk Regular dan `PRJ-YYYY-###` untuk Project.
 - App shell dibuat lebih terasa native di HP: fullscreen mobile, safe-area support, sticky header, fixed bottom nav, dan desktop preview tetap center max-width 390.
+- Grafik Arus Kas Bulanan sekarang tampil sejak bulan pertama transaksi, dengan note ringan bahwa tren lebih jelas setelah bulan berikutnya.
+- Histori Transaksi Global dibuat read-only di Dashboard agar tidak menambah risiko edit/hapus dari ringkasan global.
 
 ### Fixed
 - Toast Input Cepat diverifikasi muncul di atas bottom navigation dan auto-dismiss secara visual setelah 2 detik.
 - Manual test checklist `docs/DESIGN_BRIEF.md` Section 22 passed.
 - Production build `npm run build` passed setelah redesign dan setelah merge ke `master`.
+- Annotation wireframe/debug text di halaman produksi dibersihkan.
+- Bottom navigation fixed agar tidak muncul di tengah konten pada halaman panjang.
+- Field Potongan Ops Perusahaan di Detail Proyek tampil format IDR saat idle, angka mentah saat edit, dan autosave saat blur.
+- Tombol hapus transaksi di Detail Proyek diganti trash icon subtle dengan tap area 44px.
+- Project card menampilkan `Profit bersih` termasuk `Rp 0` dengan warna cool gray.
+- Build warning chunk Excel dihilangkan dengan konfigurasi Vite yang memisahkan async chunk `excel`.
 
 ### Note
 - localStorage keys tetap: `jpa_proyek`, `jpa_transaksi`, `jpa_settings`.

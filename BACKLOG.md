@@ -38,7 +38,7 @@ Update file ini setiap kali ada keputusan baru atau item selesai dikerjakan.
       Ganti raw RUGI/UNTUNG dengan wording kontekstual (5 kondisi)
 - [x] Dashboard — insight card dengan 7 priority rules
 - [x] Dashboard — Dana Talangan KPI pakai Corporate Blue #0046B8
-- [x] Dashboard — chart low-data state (< 2 bulan data)
+- [x] Dashboard — grafik arus kas tampil sejak bulan pertama transaksi
 - [x] Daftar Proyek — empty state spesifik per filter (6 kondisi)
 - [x] Backup — visual differentiation Export (solid) vs Import (border)
 - [x] Backup — Danger Zone dengan red tint background (#FEF2F2)
@@ -53,7 +53,10 @@ Update file ini setiap kali ada keputusan baru atau item selesai dikerjakan.
       Sheet 3: Dashboard summary
 - [x] Screenshot before/after untuk dokumentasi (docs/screenshots/)
 - [x] Detail Proyek — improve layout ringkasan keuangan
-- [ ] Input Cepat — animasi ringan saat toggle Masuk/Keluar
+- [x] Input Cepat — animasi ringan saat toggle Masuk/Keluar
+- [x] Dashboard — Histori Transaksi Global dengan search, filter, sort, dan compact preview
+- [x] App-wide motion polish ringan dengan dukungan `prefers-reduced-motion`
+- [x] Build polish — split async chunk Excel agar `npm run build` bersih tanpa warning
 
 ### Out of Scope v1.2.0
 
@@ -114,8 +117,8 @@ Update file ini setiap kali ada keputusan baru atau item selesai dikerjakan.
 
 > Tempat menampung ide yang belum diputuskan masuk versi mana.
 
-- Fitur pencarian transaksi (search by deskripsi/kategori/nominal)
-- Filter transaksi by rentang tanggal
+- Fitur pencarian transaksi (search by deskripsi/kategori/nominal) — selesai untuk Detail Proyek dan Dashboard Global
+- Filter transaksi by rentang tanggal — selesai untuk Detail Proyek dan Dashboard Global
 - Ringkasan per bulan di halaman terpisah
 - Dark mode (low priority)
 - PWA / installable app (Add to Home Screen)

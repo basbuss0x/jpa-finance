@@ -178,6 +178,28 @@ function Badge({ children }) {
   )
 }
 
+function TrashIcon({ color }) {
+  return (
+    <svg
+      width="18"
+      height="18"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke={color}
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
+      <path d="M3 6h18" />
+      <path d="M8 6V4h8v2" />
+      <path d="M19 6l-1 14H6L5 6" />
+      <path d="M10 11v5" />
+      <path d="M14 11v5" />
+    </svg>
+  )
+}
+
 function NumberTile({ label, value, color }) {
   return (
     <div
@@ -409,7 +431,7 @@ function EditProyek({ proyek, onCancel, onSaved, onDeleted }) {
             style={inputStyle}
           />
           <span style={{ color: tokens.colors.text.coolGray, fontSize: 11 }}>
-            Terbaca: {fmtIDR(Number(nilaiPesanan))}
+            {fmtIDR(Number(nilaiPesanan))}
           </span>
         </Field>
         <Segmented label="Status" options={STATUS_PROYEK_OPTIONS} value={status} onChange={setStatus} />
@@ -446,7 +468,6 @@ function EditProyek({ proyek, onCancel, onSaved, onDeleted }) {
 
       <DetailCard
         title="Zona bahaya"
-        note="konfirmasi 2 langkah"
         style={{
           background: tokens.colors.danger.tint,
           borderColor: tokens.colors.danger.border,
@@ -503,6 +524,7 @@ export default function DetailProyek({ proyekId, onNavigate }) {
   const [proyek, setProyek] = useState([])
   const [transaksi, setTransaksi] = useState([])
   const [potOpsDraft, setPotOpsDraft] = useState('')
+  const [potOpsEditing, setPotOpsEditing] = useState(false)
   const [editMode, setEditMode] = useState(false)
   const [deleteTarget, setDeleteTarget] = useState(null)
   const [toast, setToast] = useState('')
@@ -565,8 +587,15 @@ export default function DetailProyek({ proyekId, onNavigate }) {
     window.setTimeout(() => setToast(''), 2000)
   }
 
+  const handlePotOpsChange = (event) => {
+    const digitsOnly = event.target.value.replace(/\D/g, '')
+    setPotOpsDraft(digitsOnly)
+  }
+
   const savePotOps = () => {
     const nextValue = Math.max(0, Number(potOpsDraft) || 0)
+    setPotOpsDraft(String(nextValue))
+    setPotOpsEditing(false)
     saveProyek(
       getProyek().map((item) =>
         item.id === currentProyek.id ? { ...item, potOpsPerush: nextValue } : item
@@ -665,10 +694,11 @@ export default function DetailProyek({ proyekId, onNavigate }) {
 
       <DetailCard title="Potongan Ops Perusahaan" note="tersimpan otomatis">
         <input
-          type="number"
+          type="text"
           inputMode="numeric"
-          value={potOpsDraft}
-          onChange={(event) => setPotOpsDraft(event.target.value)}
+          value={potOpsEditing ? potOpsDraft : fmtIDR(Number(potOpsDraft))}
+          onFocus={() => setPotOpsEditing(true)}
+          onChange={handlePotOpsChange}
           onBlur={savePotOps}
           aria-label="Potongan Ops Perusahaan manual"
           style={{ ...inputStyle, fontSize: 16, fontWeight: 800 }}
@@ -784,21 +814,22 @@ export default function DetailProyek({ proyekId, onNavigate }) {
                 </strong>
                 <button
                   type="button"
+                  aria-label="Hapus transaksi"
+                  title="Hapus transaksi"
                   onClick={() => setDeleteTarget(item)}
                   style={{
                     marginTop: 6,
                     minHeight: 44,
-                    minWidth: 64,
-                    border: `1px solid ${tokens.colors.danger.border}`,
-                    borderRadius: tokens.radius.sm,
+                    minWidth: 44,
+                    border: `1px solid ${tokens.colors.line.borderGray}`,
+                    borderRadius: tokens.radius.md,
                     background: tokens.colors.surface.white,
-                    color: tokens.colors.semantic.error,
-                    fontSize: 11,
-                    fontWeight: 800,
-                    fontFamily: tokens.typography.family,
+                    color: tokens.colors.text.coolGray,
+                    display: 'inline-grid',
+                    placeItems: 'center',
                   }}
                 >
-                  Hapus
+                  <TrashIcon color={tokens.colors.text.coolGray} />
                 </button>
               </div>
             </div>

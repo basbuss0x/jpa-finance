@@ -34,7 +34,7 @@ export function Toast({ visible, children = 'Transaksi tersimpan ✓' }) {
         fontFamily: tokens.typography.family,
         fontSize: tokens.typography.body.fontSize,
         fontWeight: 700,
-        transition: 'opacity 160ms ease, transform 160ms ease',
+        transition: `opacity ${tokens.motion.base} ${tokens.motion.easeOut}, transform ${tokens.motion.base} ${tokens.motion.easeOut}`,
         boxSizing: 'border-box',
       }}
     >
@@ -60,6 +60,7 @@ export function QuickAmountChips({ value, onChange, amounts = quickAmounts }) {
           <button
             key={item.label}
             type="button"
+            className="motion-pressable"
             onClick={() => onChange?.(item.value)}
             style={{
               minHeight: 40,
@@ -75,6 +76,8 @@ export function QuickAmountChips({ value, onChange, amounts = quickAmounts }) {
               fontSize: tokens.typography.body.fontSize,
               fontWeight: 700,
               whiteSpace: 'nowrap',
+              transition:
+                `transform ${tokens.motion.fast} ${tokens.motion.easeOut}, background ${tokens.motion.base} ${tokens.motion.easeOut}, color ${tokens.motion.base} ${tokens.motion.easeOut}, border-color ${tokens.motion.base} ${tokens.motion.easeOut}`,
             }}
           >
             {item.label}
@@ -88,6 +91,7 @@ export function QuickAmountChips({ value, onChange, amounts = quickAmounts }) {
 export function StatusBanner({ label, description, color = tokens.colors.text.coolGray }) {
   return (
     <section
+      className="motion-card"
       style={{
         ...componentStyles.card,
         borderColor: color,
@@ -174,6 +178,7 @@ export function InsightCard({ title = 'Insight', message, ctaLabel, onCta }) {
       {ctaLabel ? (
         <button
           type="button"
+          className="motion-pressable"
           onClick={onCta}
           style={{
             justifySelf: 'start',
@@ -197,6 +202,7 @@ export function InsightCard({ title = 'Insight', message, ctaLabel, onCta }) {
 export function EmptyState({ title, description, ctaLabel, onCta }) {
   return (
     <section
+      className="motion-card"
       style={{
         ...componentStyles.card,
         display: 'grid',
@@ -243,6 +249,7 @@ export function EmptyState({ title, description, ctaLabel, onCta }) {
       {ctaLabel ? (
         <button
           type="button"
+          className="motion-pressable"
           onClick={onCta}
           style={{
             ...componentStyles.secondaryButton,

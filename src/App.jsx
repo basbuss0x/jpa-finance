@@ -12,7 +12,7 @@ function GlobalAppStyles() {
     <style>
       {`
         html, body, #root {
-          min-height: 100%;
+          height: 100%;
           margin: 0;
         }
 
@@ -20,6 +20,7 @@ function GlobalAppStyles() {
           background: #F8FAFC;
           color: #111827;
           font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+          overflow: hidden;
           overscroll-behavior-y: none;
         }
 
@@ -28,25 +29,29 @@ function GlobalAppStyles() {
         }
 
         .app-shell {
-          min-height: 100dvh;
+          height: 100dvh;
           background: #F8FAFC;
+          overflow: hidden;
         }
 
         .app-stage {
-          min-height: 100dvh;
+          height: 100dvh;
           display: flex;
           justify-content: center;
           align-items: flex-start;
           box-sizing: border-box;
+          overflow: hidden;
         }
 
         .app-frame {
           width: 100%;
-          min-height: 100dvh;
+          height: 100dvh;
           background: #F8FAFC;
           box-sizing: border-box;
           position: relative;
           overflow-x: hidden;
+          overflow-y: auto;
+          -webkit-overflow-scrolling: touch;
         }
 
         .app-header {
@@ -59,7 +64,7 @@ function GlobalAppStyles() {
         }
 
         .app-content {
-          padding-bottom: calc(96px + env(safe-area-inset-bottom));
+          padding-bottom: calc(112px + env(safe-area-inset-bottom)) !important;
         }
 
         .app-bottom-nav {
@@ -75,6 +80,80 @@ function GlobalAppStyles() {
           -webkit-backdrop-filter: blur(18px);
         }
 
+        @keyframes motion-page-enter {
+          from {
+            opacity: 0;
+            transform: translateY(6px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+
+        @keyframes motion-card-enter {
+          from {
+            opacity: 0;
+            transform: translateY(4px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+
+        .motion-page {
+          animation: motion-page-enter 180ms cubic-bezier(0.16, 1, 0.3, 1) both;
+        }
+
+        .motion-card,
+        .motion-list-item {
+          animation: motion-card-enter 180ms cubic-bezier(0.16, 1, 0.3, 1) both;
+        }
+
+        .motion-pressable {
+          transition:
+            transform 120ms cubic-bezier(0.16, 1, 0.3, 1),
+            background-color 180ms cubic-bezier(0.16, 1, 0.3, 1),
+            border-color 180ms cubic-bezier(0.16, 1, 0.3, 1),
+            color 180ms cubic-bezier(0.16, 1, 0.3, 1),
+            opacity 120ms cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .motion-pressable:active {
+          transform: scale(0.98);
+        }
+
+        .motion-nav-active {
+          transform: translateY(-1px);
+        }
+
+        .motion-progress-fill,
+        .motion-bar-fill {
+          transition:
+            width 240ms cubic-bezier(0.16, 1, 0.3, 1),
+            height 240ms cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+          *,
+          *::before,
+          *::after {
+            animation-duration: 1ms !important;
+            animation-iteration-count: 1 !important;
+            scroll-behavior: auto !important;
+            transition-duration: 1ms !important;
+          }
+
+          .motion-page,
+          .motion-card,
+          .motion-list-item,
+          .motion-nav-active,
+          .motion-pressable:active {
+            transform: none !important;
+          }
+        }
+
         @media (min-width: 431px) {
           .app-shell {
             background: #e5e1d8;
@@ -86,7 +165,7 @@ function GlobalAppStyles() {
 
           .app-frame {
             max-width: 390px;
-            min-height: calc(100vh - 32px);
+            height: calc(100dvh - 32px);
             border: 1px solid #CBD5E1;
             box-shadow: 0 12px 32px rgba(0, 43, 104, 0.12);
           }
@@ -94,6 +173,7 @@ function GlobalAppStyles() {
           .app-bottom-nav {
             left: 50%;
             right: auto;
+            bottom: 16px;
             transform: translateX(-50%);
             max-width: 390px;
           }

@@ -86,7 +86,7 @@ function ReviewFrame({ title, kicker, children, activePage = 'projects', onNavig
         </div>
       </header>
       <section style={{ display: 'grid', gap: 10, padding: 12 }}>{children}</section>
-      <BottomNav activePage={activePage} onNavigate={onNavigate} />
+      <BottomNav activePage={activePage} onNavigate={onNavigate} fixed={false} />
     </div>
   )
 }
@@ -237,7 +237,7 @@ function TambahProyekWireframe({ onNavigate }) {
           value={String(nilai)}
           type="number"
         />
-        <span style={annotationStyle}>Format terbaca: {fmtIDR(nilai)}</span>
+        <span style={annotationStyle}>{fmtIDR(nilai)}</span>
         <TextField label="6. Tanggal Mulai" value={today} type="date" />
         <TextAreaField
           label="7. Catatan"
@@ -245,7 +245,7 @@ function TambahProyekWireframe({ onNavigate }) {
           placeholder="Keterangan tambahan (opsional)"
         />
       </Card>
-      <Card title="Annotation" note="aturan tambah proyek">
+      <Card title="Catatan proyek">
         <LabelRow label="Status" value="Default otomatis Aktif" />
         <LabelRow label="Potongan Ops Perusahaan" value="Diisi nanti di Detail" />
         <LabelRow label="Validasi wajib" value="Nama + Nilai Pesanan" strong />
@@ -287,7 +287,7 @@ function EditProyekWireframe({ onNavigate }) {
           onChange={setSumber}
         />
         <TextField label="5. Nilai Pesanan" value={String(nilai)} type="number" />
-        <span style={annotationStyle}>Format terbaca: {fmtIDR(nilai)}</span>
+        <span style={annotationStyle}>{fmtIDR(nilai)}</span>
         <ToggleGroup
           label="6. Status"
           options={['Aktif', 'Menunggu Bayar', 'Selesai']}
@@ -305,7 +305,7 @@ function EditProyekWireframe({ onNavigate }) {
 
       <div style={{ height: 1, background: gray.mid, margin: '4px 0' }} />
 
-      <Card title="Zona bahaya" note="konfirmasi 2 langkah">
+      <Card title="Zona bahaya">
         <div
           style={{
             display: 'grid',
@@ -424,9 +424,6 @@ function EditProyekWireframe({ onNavigate }) {
             </div>
           </div>
         </div>
-        <span style={annotationStyle}>
-          Tombol konfirmasi disabled/abu sampai user mengetik HAPUS.
-        </span>
       </Card>
 
       <Card title="State B - Toast Proyek Terhapus" note="setelah konfirmasi">
@@ -477,9 +474,6 @@ function EditProyekWireframe({ onNavigate }) {
             kembali ke Daftar Proyek
           </div>
         </div>
-        <span style={annotationStyle}>
-          Toast muncul setelah bottom sheet dismiss, lalu user kembali ke daftar proyek.
-        </span>
       </Card>
     </ReviewFrame>
   )
@@ -657,9 +651,6 @@ function DeleteFlowWireframe({ onNavigate }) {
             </div>
           </div>
         </div>
-        <span style={annotationStyle}>
-          Bottom sheet dipilih karena lebih natural di HP dan dekat dengan jempol.
-        </span>
       </Card>
 
       <Card title="Step 2 - Toast berhasil" note="setelah dismiss">
@@ -710,7 +701,6 @@ function DeleteFlowWireframe({ onNavigate }) {
             bottom navigation area
           </div>
         </div>
-        <span style={annotationStyle}>Toast muncul 2 detik, lalu auto-dismiss.</span>
       </Card>
     </ReviewFrame>
   )

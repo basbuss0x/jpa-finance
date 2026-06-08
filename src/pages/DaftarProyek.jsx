@@ -227,9 +227,11 @@ function ProjectProgress({ value }) {
 function ProjectCard({ proyek, transaksi, onOpenDetail }) {
   const summary = hitungProyek(proyek, transaksi)
   const profitColor =
-    summary.profitBersih >= 0
+    summary.profitBersih > 0
       ? tokens.colors.semantic.success
-      : tokens.colors.semantic.error
+      : summary.profitBersih < 0
+        ? tokens.colors.semantic.error
+        : tokens.colors.text.coolGray
 
   return (
     <button
@@ -487,7 +489,7 @@ function TambahProyekForm({ proyek, onCancel, onSaved }) {
               fontSize: tokens.typography.caption.fontSize,
             }}
           >
-            Terbaca: {fmtIDR(Number(nilaiPesanan))}
+            {fmtIDR(Number(nilaiPesanan))}
           </span>
         </label>
 
@@ -519,7 +521,7 @@ function TambahProyekForm({ proyek, onCancel, onSaved }) {
         </label>
       </SurfaceCard>
 
-      <SurfaceCard title="Annotation" note="aturan tambah proyek">
+      <SurfaceCard title="Catatan proyek">
         <span style={{ color: tokens.colors.text.slate, fontSize: 12 }}>
           Tidak ada field Status saat tambah baru. Status otomatis Aktif.
         </span>
@@ -632,7 +634,7 @@ export default function DaftarProyek({ onNavigate, onOpenDetail }) {
         + Proyek Baru
       </button>
 
-      <SurfaceCard title="Filter proyek" note="compact chips">
+      <SurfaceCard title="Filter proyek">
         <div style={{ display: 'grid', gap: tokens.spacing.sm }}>
           <span
             style={{

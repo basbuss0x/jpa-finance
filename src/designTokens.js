@@ -63,6 +63,13 @@ export const tokens = {
     soft: '0 4px 12px rgba(0, 43, 104, 0.08)',
     raised: '0 12px 32px rgba(0, 43, 104, 0.12)',
   },
+  motion: {
+    fast: '120ms',
+    base: '180ms',
+    slow: '240ms',
+    easeOut: 'cubic-bezier(0.16, 1, 0.3, 1)',
+    easeInOut: 'cubic-bezier(0.4, 0, 0.2, 1)',
+  },
 }
 
 export const componentStyles = {
@@ -80,6 +87,7 @@ export const componentStyles = {
     background: tokens.colors.primary.actionBlue,
     color: tokens.colors.text.inverse,
     fontWeight: 700,
+    transition: `transform ${tokens.motion.fast} ${tokens.motion.easeOut}, opacity ${tokens.motion.fast} ${tokens.motion.easeOut}, background ${tokens.motion.base} ${tokens.motion.easeOut}`,
   },
   secondaryButton: {
     minHeight: 52,
@@ -88,6 +96,7 @@ export const componentStyles = {
     background: tokens.colors.surface.white,
     color: tokens.colors.primary.jpaNavy,
     fontWeight: 700,
+    transition: `transform ${tokens.motion.fast} ${tokens.motion.easeOut}, opacity ${tokens.motion.fast} ${tokens.motion.easeOut}, border-color ${tokens.motion.base} ${tokens.motion.easeOut}`,
   },
   dangerButton: {
     minHeight: 52,
@@ -96,5 +105,6 @@ export const componentStyles = {
     background: tokens.colors.semantic.error,
     color: tokens.colors.text.inverse,
     fontWeight: 700,
+    transition: `transform ${tokens.motion.fast} ${tokens.motion.easeOut}, opacity ${tokens.motion.fast} ${tokens.motion.easeOut}`,
   },
 }

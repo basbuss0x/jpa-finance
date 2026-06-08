@@ -52,6 +52,7 @@ export function PageFrame({ title, subtitle, children, activePage, onNavigate })
         ) : null}
       </header>
       <section
+        className="app-content motion-page"
         style={{
           display: 'grid',
           gap: 10,
@@ -68,6 +69,7 @@ export function PageFrame({ title, subtitle, children, activePage, onNavigate })
 export function Card({ title, note, children }) {
   return (
     <section
+      className="motion-card"
       style={{
         display: 'grid',
         gap: 8,
@@ -141,6 +143,7 @@ export function WireButton({ children, variant = 'primary', onClick }) {
   return (
     <button
       type="button"
+      className="motion-pressable"
       onClick={onClick}
       style={{
         minHeight: 48,
@@ -173,6 +176,7 @@ export function ProgressBar({ value, color }) {
       }}
     >
       <div
+        className="motion-progress-fill"
         style={{
           width: `${safeValue}%`,
           height: '100%',
@@ -214,7 +218,7 @@ export function Badge({ children }) {
   )
 }
 
-export function BottomNav({ activePage, onNavigate }) {
+export function BottomNav({ activePage, onNavigate, fixed = true }) {
   const items = [
     { id: 'input', label: 'Input', icon: 'input' },
     { id: 'projects', label: 'Proyek', icon: 'folder' },
@@ -225,7 +229,7 @@ export function BottomNav({ activePage, onNavigate }) {
   return (
     <nav
       aria-label="Navigasi utama wireframe"
-      className="app-bottom-nav"
+      className={fixed ? 'app-bottom-nav' : undefined}
       style={{
         display: 'grid',
         gridTemplateColumns: 'repeat(4, 1fr)',
@@ -246,6 +250,7 @@ export function BottomNav({ activePage, onNavigate }) {
           <button
             key={item.id}
             type="button"
+            className={`motion-pressable ${active ? 'motion-nav-active' : ''}`}
             onClick={() => onNavigate?.(item.id)}
             style={{
               minHeight: 50,
@@ -260,6 +265,8 @@ export function BottomNav({ activePage, onNavigate }) {
               fontSize: 11,
               fontWeight: active ? 800 : 700,
               fontFamily: tokens.typography.family,
+              transition:
+                `transform ${tokens.motion.fast} ${tokens.motion.easeOut}, background ${tokens.motion.base} ${tokens.motion.easeOut}, color ${tokens.motion.base} ${tokens.motion.easeOut}`,
             }}
           >
             <NavIcon name={item.icon} color={color} />
