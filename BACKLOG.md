@@ -23,36 +23,36 @@ Update file ini setiap kali ada keputusan baru atau item selesai dikerjakan.
 
 ### Must Have
 
-- [ ] Terapkan JPA color system (Section 7 DESIGN_BRIEF)
+- [x] Terapkan JPA color system (Section 7 DESIGN_BRIEF)
       Navy #002B68, Action Blue #0B63F6, semantic colors
-- [ ] Terapkan typography scale (Section 8 DESIGN_BRIEF)
+- [x] Terapkan typography scale (Section 8 DESIGN_BRIEF)
       Plus Jakarta Sans / Inter, mobile type scale
-- [ ] Refactor card, button, chip ke style baru (Section 10)
-- [ ] Redesign bottom navigation — lebih ringan, mobile-native (Section 11)
-- [ ] Input Cepat — quick amount chips (50k, 100k, 250k, 500k, 1jt, 5jt)
+- [x] Refactor card, button, chip ke style baru (Section 10)
+- [x] Redesign bottom navigation — lebih ringan, mobile-native (Section 11)
+- [x] Input Cepat — quick amount chips (50k, 100k, 250k, 500k, 1jt, 5jt)
       Modifikasi state nominal saja, TIDAK mengubah localStorage
-- [ ] Input Cepat — toast component setelah simpan
+- [x] Input Cepat — toast component setelah simpan
       Posisi di atas bottom nav, duration 2s, JPA Navy background
-- [ ] Input Cepat — form reset setelah simpan (proyek tetap selected)
-- [ ] Dashboard — contextual status banner
+- [x] Input Cepat — form reset setelah simpan (proyek tetap selected)
+- [x] Dashboard — contextual status banner
       Ganti raw RUGI/UNTUNG dengan wording kontekstual (5 kondisi)
-- [ ] Dashboard — insight card dengan 7 priority rules
-- [ ] Dashboard — Dana Talangan KPI pakai Corporate Blue #0046B8
-- [ ] Dashboard — chart low-data state (< 2 bulan data)
-- [ ] Daftar Proyek — empty state spesifik per filter (6 kondisi)
-- [ ] Backup — visual differentiation Export (solid) vs Import (border)
-- [ ] Backup — Danger Zone dengan red tint background (#FEF2F2)
-- [ ] Bangun komponen reusable:
+- [x] Dashboard — insight card dengan 7 priority rules
+- [x] Dashboard — Dana Talangan KPI pakai Corporate Blue #0046B8
+- [x] Dashboard — chart low-data state (< 2 bulan data)
+- [x] Daftar Proyek — empty state spesifik per filter (6 kondisi)
+- [x] Backup — visual differentiation Export (solid) vs Import (border)
+- [x] Backup — Danger Zone dengan red tint background (#FEF2F2)
+- [x] Bangun komponen reusable:
       Toast, QuickAmountChips, StatusBanner, InsightCard, EmptyState
 
 ### Nice to Have
 
-- [ ] Export data ke Excel (.xlsx) — halaman Backup
+- [x] Export data ke Excel (.xlsx) — halaman Backup
       Sheet 1: Semua Transaksi
       Sheet 2: Ringkasan per Proyek
       Sheet 3: Dashboard summary
-- [ ] Screenshot before/after untuk dokumentasi (docs/screenshots/)
-- [ ] Detail Proyek — improve layout ringkasan keuangan
+- [x] Screenshot before/after untuk dokumentasi (docs/screenshots/)
+- [x] Detail Proyek — improve layout ringkasan keuangan
 - [ ] Input Cepat — animasi ringan saat toggle Masuk/Keluar
 
 ### Out of Scope v1.2.0
