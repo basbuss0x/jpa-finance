@@ -22,7 +22,36 @@ Kategori yang dipakai:
 
 ---
 
-## [Unreleased] — v1.2.0
+## [Unreleased] - v1.2.3
+
+### Added
+- Prompt sumber dana di Input Cepat saat `Keluar + Bayar Vendor` untuk memilih `Uang pribadi saya` atau `Dari kas / sekolah`.
+- Shortcut tanggal transaksi di Input Cepat: `Hari ini`, `Kemarin`, dan `2 hari lalu`.
+- Reminder tanggal transaksi saat user mencatat untuk tanggal selain hari ini.
+- Editable tanggal inline di Histori Transaksi Detail Proyek.
+- Histori Transaksi Ops Perusahaan di Dashboard untuk transaksi `UMUM`, collapsed by default.
+- Bottom sheet hapus transaksi Ops Perusahaan dari Dashboard.
+- Helper `updateTransaksi(id, updatedFields)` untuk update field transaksi existing tanpa mengubah schema.
+- Helper label tipe transaksi agar value internal seperti `modal` tetap stabil, tetapi UI menampilkan label yang lebih jelas.
+
+### Changed
+- Label UI/export `modal` diperjelas menjadi `Dana Talangan Pribadi` tanpa mengubah value internal `modal`.
+- Field tanggal Input Cepat dipindah dari header ke dalam form tepat setelah toggle `Masuk / Keluar`.
+- Script dev lokal diperbaiki dari `vite --hostname 127.0.0.1` menjadi `vite --host 127.0.0.1`.
+
+### Fixed
+- Transaksi Ops Perusahaan `UMUM` sekarang bisa dihapus dari UI Dashboard.
+- Tanggal transaksi yang salah input bisa diperbaiki langsung dari histori tanpa mengubah field transaksi lain.
+
+### Note
+- localStorage keys tetap: `jpa_proyek`, `jpa_transaksi`, `jpa_settings`.
+- Nilai konstanta tipe transaksi tetap: `modal` masih `"modal"`.
+- Schema transaksi tidak berubah; tidak ada field `sumberDana`.
+- Kalkulasi finance tidak diubah: `hitungProyek` dan `sumNominalByTipe` tetap sama.
+
+---
+
+## [1.2.0] - 9 Juni 2026
 
 ### Added
 - Shared design tokens untuk warna, typography, spacing, radius, dan shadow berdasarkan `docs/DESIGN_BRIEF.md`.

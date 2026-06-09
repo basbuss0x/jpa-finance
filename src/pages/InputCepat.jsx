@@ -7,7 +7,7 @@ import {
   TIPE_TRANSAKSI,
 } from '../constants'
 import { addTransaksi, getProyek } from '../store'
-import { fmtIDR } from '../utils'
+import { fmtIDR, labelTipeTransaksi } from '../utils'
 import { BottomNav } from '../components/WireframeShared.jsx'
 import { componentStyles, tokens } from '../designTokens'
 import { QuickAmountChips, Toast } from '../components/ui.jsx'
@@ -40,12 +40,42 @@ const tipeOptions = [
   TIPE_TRANSAKSI.pengembalian,
 ]
 
+const sourcePromptOptions = [
+  {
+    label: 'Uang pribadi saya',
+    tipe: TIPE_TRANSAKSI.modal,
+  },
+  {
+    label: 'Dari kas / sekolah',
+    tipe: TIPE_TRANSAKSI.opsProyek,
+  },
+]
+
 const opsiUmum = {
   id: PROYEK_UMUM_ID,
   nama: 'Ops Perusahaan (Umum)',
   klien: 'Overhead perusahaan',
   jenis: 'Ops Umum',
   status: 'Aktif',
+}
+
+const dateIdFromOffset = (offsetDays = 0) => {
+  const date = new Date()
+  date.setDate(date.getDate() + offsetDays)
+  const year = date.getFullYear()
+  const month = String(date.getMonth() + 1).padStart(2, '0')
+  const day = String(date.getDate()).padStart(2, '0')
+  return `${year}-${month}-${day}`
+}
+
+const formatFullDate = (value) => {
+  if (!value) return '-'
+  return new Intl.DateTimeFormat('id-ID', {
+    weekday: 'long',
+    day: '2-digit',
+    month: 'long',
+    year: 'numeric',
+  }).format(new Date(`${value}T00:00:00`))
 }
 
 function inferTipe(arah, kategori, proyekId) {
@@ -102,8 +132,89 @@ function Field({ label, note, children }) {
   )
 }
 
+function SourcePrompt({ tipe, onSelect }) {
+  const helperText =
+    tipe === TIPE_TRANSAKSI.opsProyek
+      ? 'Pakai ini jika uang sudah ada dari sekolah atau dari laba proyek sebelumnya.'
+      : 'Pakai ini jika uang keluar dari kantong pribadi Anda sebelum pembayaran dari sekolah masuk.'
+
+  return (
+    <div
+      style={{
+        display: 'grid',
+        gap: tokens.spacing.sm,
+        opacity: 1,
+        transition: `opacity ${tokens.motion.base} ${tokens.motion.easeOut}`,
+      }}
+    >
+      <span
+        style={{
+          color: tokens.colors.text.slate,
+          fontSize: 13,
+          fontWeight: 800,
+        }}
+      >
+        Sumber dana untuk pembelian ini?
+      </span>
+      <div
+        style={{
+          display: 'grid',
+          gridTemplateColumns: '1fr 1fr',
+          gap: tokens.spacing.sm,
+        }}
+      >
+        {sourcePromptOptions.map((option) => {
+          const active = tipe === option.tipe
+          return (
+            <button
+              key={option.tipe}
+              type="button"
+              className="motion-pressable"
+              onClick={() => onSelect(option.tipe)}
+              style={{
+                minHeight: 36,
+                borderRadius: tokens.radius.full,
+                border: `1px solid ${
+                  active ? tokens.colors.primary.actionBlue : tokens.colors.line.lineBlue
+                }`,
+                background: active ? tokens.colors.primary.actionBlue : tokens.colors.surface.white,
+                color: active ? tokens.colors.text.inverse : tokens.colors.primary.jpaNavy,
+                fontSize: 13,
+                fontWeight: 800,
+                fontFamily: tokens.typography.family,
+              }}
+            >
+              {option.label}
+            </button>
+          )
+        })}
+      </div>
+      <span
+        style={{
+          padding: '8px 12px',
+          borderRadius: tokens.radius.sm,
+          background: tokens.colors.surface.iceBlue,
+          color: tokens.colors.text.coolGray,
+          fontSize: 12,
+          lineHeight: 1.4,
+        }}
+      >
+        {helperText}
+      </span>
+    </div>
+  )
+}
+
 export default function InputCepat({ screenDate, onDateChange, onNavigate }) {
-  const today = useMemo(() => new Date().toISOString().slice(0, 10), [])
+  const today = useMemo(() => dateIdFromOffset(0), [])
+  const dateShortcuts = useMemo(
+    () => [
+      { label: 'Hari ini', value: today },
+      { label: 'Kemarin', value: dateIdFromOffset(-1) },
+      { label: '2 hari lalu', value: dateIdFromOffset(-2) },
+    ],
+    [today]
+  )
   const [tanggal, setTanggal] = useState(screenDate || today)
   const [proyek, setProyek] = useState([])
   const [arah, setArah] = useState(ARAH_TRANSAKSI.keluar)
@@ -131,6 +242,9 @@ export default function InputCepat({ screenDate, onDateChange, onNavigate }) {
   const categories = KATEGORI_BY_ARAH[arah]
   const autoTipe = inferTipe(arah, kategori, proyekId)
   const tipe = manualTipe || autoTipe
+  const showSourcePrompt =
+    arah === ARAH_TRANSAKSI.keluar && kategori === KATEGORI.bayarVendor
+  const isNotToday = tanggal && tanggal !== today
 
   const handleArah = (nextArah) => {
     setArah(nextArah)
@@ -246,34 +360,6 @@ export default function InputCepat({ screenDate, onDateChange, onNavigate }) {
           </div>
         </div>
 
-        <label
-          style={{
-            display: 'grid',
-            gridTemplateColumns: '1fr auto',
-            gap: tokens.spacing.md,
-            alignItems: 'center',
-            color: tokens.colors.text.slate,
-            fontSize: tokens.typography.caption.fontSize,
-            fontWeight: tokens.typography.caption.fontWeight,
-          }}
-        >
-          <span>Tanggal transaksi</span>
-          <input
-            type="date"
-            value={tanggal}
-            onChange={(event) => handleTanggal(event.target.value)}
-            style={{
-              minHeight: 36,
-              border: `1px solid ${tokens.colors.line.borderGray}`,
-              borderRadius: tokens.radius.sm,
-              padding: '0 8px',
-              background: tokens.colors.surface.mistBlue,
-              color: tokens.colors.text.slate,
-              fontSize: tokens.typography.caption.fontSize,
-              fontFamily: tokens.typography.family,
-            }}
-          />
-        </label>
       </header>
 
       <section
@@ -344,6 +430,61 @@ export default function InputCepat({ screenDate, onDateChange, onNavigate }) {
               )
             })}
           </div>
+        </Field>
+
+        <Field label="Tanggal transaksi">
+          <input
+            type="date"
+            value={tanggal}
+            onChange={(event) => handleTanggal(event.target.value)}
+            style={inputStyle}
+          />
+          <div
+            style={{
+              display: 'flex',
+              flexWrap: 'wrap',
+              gap: tokens.spacing.sm,
+            }}
+          >
+            {dateShortcuts.map((item) => {
+              const active = tanggal === item.value
+              return (
+                <button
+                  key={item.label}
+                  type="button"
+                  className="motion-pressable"
+                  onClick={() => handleTanggal(item.value)}
+                  style={{
+                    minHeight: 32,
+                    padding: '0 12px',
+                    borderRadius: tokens.radius.full,
+                    border: `1px solid ${
+                      active ? tokens.colors.primary.actionBlue : tokens.colors.line.borderGray
+                    }`,
+                    background: active ? tokens.colors.primary.actionBlue : tokens.colors.surface.white,
+                    color: active ? tokens.colors.text.inverse : tokens.colors.text.coolGray,
+                    fontSize: 12,
+                    fontWeight: 800,
+                    fontFamily: tokens.typography.family,
+                  }}
+                >
+                  {item.label}
+                </button>
+              )
+            })}
+          </div>
+          {isNotToday ? (
+            <span
+              style={{
+                color: tokens.colors.semantic.warning,
+                fontSize: 12,
+                fontWeight: 800,
+                lineHeight: 1.4,
+              }}
+            >
+              Mencatat untuk {formatFullDate(tanggal)}
+            </span>
+          ) : null}
         </Field>
 
         <Field label="Proyek">
@@ -427,6 +568,9 @@ export default function InputCepat({ screenDate, onDateChange, onNavigate }) {
         </Field>
 
         <Field label="Tipe transaksi" note="auto, bisa diubah">
+          {showSourcePrompt ? (
+            <SourcePrompt tipe={tipe} onSelect={(nextTipe) => setManualTipe(nextTipe)} />
+          ) : null}
           <div
             style={{
               minHeight: 42,
@@ -443,7 +587,9 @@ export default function InputCepat({ screenDate, onDateChange, onNavigate }) {
             }}
           >
             <span>Auto</span>
-            <strong style={{ color: tokens.colors.text.ink }}>{autoTipe}</strong>
+            <strong style={{ color: tokens.colors.text.ink }}>
+              {labelTipeTransaksi(autoTipe)}
+            </strong>
           </div>
           <button
             type="button"
@@ -470,7 +616,7 @@ export default function InputCepat({ screenDate, onDateChange, onNavigate }) {
             >
               {tipeOptions.map((item) => (
                 <option key={item} value={item}>
-                  {item}
+                  {labelTipeTransaksi(item)}
                 </option>
               ))}
             </select>

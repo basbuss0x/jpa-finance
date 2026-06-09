@@ -68,6 +68,28 @@ Update file ini setiap kali ada keputusan baru atau item selesai dikerjakan.
 
 ---
 
+## v1.2.3 - Input Stabilization
+> Target: mengurangi salah input saat penggunaan lapangan / rush hour
+
+- [x] Ganti label UI `modal` menjadi `Dana Talangan Pribadi` tanpa mengubah value internal.
+- [x] Input Cepat - prompt sumber dana saat `Keluar + Bayar Vendor`.
+- [x] Input Cepat - pindahkan tanggal transaksi ke dalam form setelah toggle Masuk/Keluar.
+- [x] Input Cepat - shortcut tanggal `Hari ini`, `Kemarin`, `2 hari lalu`.
+- [x] Input Cepat - reminder amber saat tanggal bukan hari ini.
+- [x] Detail Proyek - editable tanggal inline di histori transaksi.
+- [x] Dashboard - histori transaksi Ops Perusahaan `UMUM`, collapsed default.
+- [x] Dashboard - delete transaksi Ops Perusahaan via bottom sheet.
+- [x] Fix script dev Vite lokal dari `--hostname` ke `--host`.
+
+### Keputusan v1.2.3
+
+- [x] Tidak menambahkan field `sumberDana` ke schema transaksi.
+- [x] Tidak mengubah localStorage keys.
+- [x] Tidak mengubah kalkulasi finance.
+- [x] Saldo kas real-time ditunda ke fase berikutnya.
+
+---
+
 ## v2.0.0 — Cloud Storage
 > Target: setelah rekrut karyawan keuangan / akuntan
 > Trigger: saat localStorage dirasa tidak cukup aman

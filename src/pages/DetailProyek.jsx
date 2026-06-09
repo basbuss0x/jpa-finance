@@ -10,6 +10,7 @@ import {
   getProyek,
   getTransaksi,
   saveProyek,
+  updateTransaksi,
 } from '../store'
 import { fmtIDR, hitungProyek } from '../utils'
 import { LabelRow, PageFrame, ProgressBar } from '../components/WireframeShared.jsx'
@@ -531,6 +532,8 @@ export default function DetailProyek({ proyekId, onNavigate }) {
   const [searchTerm, setSearchTerm] = useState('')
   const [dateFrom, setDateFrom] = useState('')
   const [dateTo, setDateTo] = useState('')
+  const [editingDateId, setEditingDateId] = useState('')
+  const [editingDateValue, setEditingDateValue] = useState('')
 
   const reload = () => {
     setProyek(getProyek())
@@ -610,6 +613,28 @@ export default function DetailProyek({ proyekId, onNavigate }) {
     setDeleteTarget(null)
     reload()
     showToast('Transaksi dihapus')
+  }
+
+  const startEditTanggal = (item) => {
+    setEditingDateId(item.id)
+    setEditingDateValue(item.tanggal || todayId())
+  }
+
+  const saveTanggalTransaksi = () => {
+    if (!editingDateId) return
+    const currentItem = transaksi.find((item) => item.id === editingDateId)
+    if (editingDateValue && currentItem?.tanggal !== editingDateValue) {
+      updateTransaksi(editingDateId, { tanggal: editingDateValue })
+      reload()
+      showToast('Tanggal diperbarui ✓')
+    }
+    setEditingDateId('')
+    setEditingDateValue('')
+  }
+
+  const cancelTanggalTransaksi = () => {
+    setEditingDateId('')
+    setEditingDateValue('')
   }
 
   if (!currentProyek) return <EmptyDetail onNavigate={onNavigate} />
@@ -795,8 +820,65 @@ export default function DetailProyek({ proyekId, onNavigate }) {
             >
               <div>
                 <strong style={{ display: 'block', fontSize: 12 }}>{item.kategori}</strong>
-                <span style={{ color: tokens.colors.text.slate, fontSize: 11 }}>
-                  {formatDate(item.tanggal)} | {item.catatan || 'Tanpa catatan'}
+                <span
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    flexWrap: 'wrap',
+                    gap: 4,
+                    color: tokens.colors.text.slate,
+                    fontSize: 11,
+                  }}
+                >
+                  {editingDateId === item.id ? (
+                    <input
+                      type="date"
+                      value={editingDateValue}
+                      autoFocus
+                      onChange={(event) => setEditingDateValue(event.target.value)}
+                      onBlur={saveTanggalTransaksi}
+                      onKeyDown={(event) => {
+                        if (event.key === 'Enter') {
+                          event.preventDefault()
+                          saveTanggalTransaksi()
+                        }
+                        if (event.key === 'Escape') {
+                          event.preventDefault()
+                          cancelTanggalTransaksi()
+                        }
+                      }}
+                      style={{
+                        minHeight: 32,
+                        maxWidth: 150,
+                        border: `1px solid ${tokens.colors.line.lineBlue}`,
+                        borderRadius: tokens.radius.sm,
+                        padding: '0 8px',
+                        background: tokens.colors.surface.white,
+                        color: tokens.colors.text.ink,
+                        fontSize: 11,
+                        fontFamily: tokens.typography.family,
+                      }}
+                    />
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={() => startEditTanggal(item)}
+                      title="Edit tanggal transaksi"
+                      style={{
+                        padding: 0,
+                        border: 0,
+                        borderBottom: `1px dashed ${tokens.colors.text.coolGray}`,
+                        background: 'transparent',
+                        color: tokens.colors.text.coolGray,
+                        fontSize: 11,
+                        fontFamily: tokens.typography.family,
+                        lineHeight: 1.35,
+                      }}
+                    >
+                      {formatDate(item.tanggal)}
+                    </button>
+                  )}
+                  <span>| {item.catatan || 'Tanpa catatan'}</span>
                 </span>
               </div>
               <div style={{ textAlign: 'right' }}>

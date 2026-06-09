@@ -7,10 +7,16 @@ import {
   STATUS_PROYEK,
   TIPE_TRANSAKSI,
 } from '../constants'
-import { getProyek, getSettings, getTransaksi } from '../store'
-import { fmtIDR, hitungProyek } from '../utils'
+import {
+  deleteTransaksi,
+  getProyek,
+  getSettings,
+  getTransaksi,
+  updateTransaksi,
+} from '../store'
+import { fmtIDR, hitungProyek, labelTipeTransaksi } from '../utils'
 import { LabelRow, PageFrame, ProgressBar } from '../components/WireframeShared.jsx'
-import { EmptyState, InsightCard, StatusBanner } from '../components/ui.jsx'
+import { EmptyState, InsightCard, StatusBanner, Toast } from '../components/ui.jsx'
 import { componentStyles, tokens } from '../designTokens'
 
 const monthLabels = [
@@ -108,6 +114,28 @@ function DashboardCard({ title, note, children }) {
   )
 }
 
+function TrashIcon({ color }) {
+  return (
+    <svg
+      width="18"
+      height="18"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke={color}
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
+      <path d="M3 6h18" />
+      <path d="M8 6V4h8v2" />
+      <path d="M19 6l-1 14H6L5 6" />
+      <path d="M10 11v5" />
+      <path d="M14 11v5" />
+    </svg>
+  )
+}
+
 function HistoryChip({ active, children, onClick }) {
   return (
     <button
@@ -131,6 +159,277 @@ function HistoryChip({ active, children, onClick }) {
     >
       {children}
     </button>
+  )
+}
+
+function OpsDeleteSheet({ transaksi, onCancel, onConfirm }) {
+  if (!transaksi) return null
+
+  return (
+    <div
+      style={{
+        position: 'fixed',
+        inset: 0,
+        display: 'flex',
+        alignItems: 'flex-end',
+        justifyContent: 'center',
+        background: 'rgba(15, 23, 42, 0.48)',
+        zIndex: 80,
+      }}
+    >
+      <section
+        style={{
+          width: '100%',
+          maxWidth: 390,
+          display: 'grid',
+          gap: tokens.spacing.md,
+          padding: tokens.spacing.lg,
+          borderRadius: '16px 16px 0 0',
+          background: tokens.colors.surface.white,
+          boxSizing: 'border-box',
+          boxShadow: tokens.shadow.raised,
+          fontFamily: tokens.typography.family,
+        }}
+      >
+        <h2
+          style={{
+            margin: 0,
+            color: tokens.colors.text.ink,
+            ...tokens.typography.sectionTitle,
+          }}
+        >
+          Hapus transaksi ini?
+        </h2>
+        <div
+          style={{
+            display: 'grid',
+            gap: tokens.spacing.xs,
+            padding: tokens.spacing.md,
+            border: `1px solid ${tokens.colors.line.borderGray}`,
+            borderRadius: tokens.radius.md,
+            background: tokens.colors.surface.mistBlue,
+            fontSize: 12,
+          }}
+        >
+          <strong>{transaksi.kategori}</strong>
+          <span>{fmtIDR(transaksi.nominal)} | {formatDate(transaksi.tanggal)}</span>
+        </div>
+        <button
+          type="button"
+          className="motion-pressable"
+          onClick={onConfirm}
+          style={{
+            ...componentStyles.dangerButton,
+            width: '100%',
+            fontFamily: tokens.typography.family,
+            fontSize: 15,
+          }}
+        >
+          Ya, Hapus
+        </button>
+        <button
+          type="button"
+          className="motion-pressable"
+          onClick={onCancel}
+          style={{
+            ...componentStyles.secondaryButton,
+            width: '100%',
+            fontFamily: tokens.typography.family,
+            fontSize: 15,
+          }}
+        >
+          Batal
+        </button>
+      </section>
+    </div>
+  )
+}
+
+function OpsHistorySection({
+  rows,
+  expanded,
+  onToggle,
+  editingDateId,
+  editingDateValue,
+  onStartEditDate,
+  onDateChange,
+  onSaveDate,
+  onCancelDate,
+  onDelete,
+}) {
+  return (
+    <div
+      style={{
+        display: 'grid',
+        gap: tokens.spacing.sm,
+        paddingTop: tokens.spacing.sm,
+        borderTop: `1px solid ${tokens.colors.line.borderGray}`,
+      }}
+    >
+      <button
+        type="button"
+        className="motion-pressable"
+        onClick={onToggle}
+        style={{
+          minHeight: 44,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          gap: tokens.spacing.md,
+          border: `1px solid ${tokens.colors.line.lineBlue}`,
+          borderRadius: tokens.radius.md,
+          background: tokens.colors.surface.white,
+          color: tokens.colors.primary.jpaNavy,
+          padding: '0 12px',
+          fontFamily: tokens.typography.family,
+          fontSize: 13,
+          fontWeight: 800,
+        }}
+      >
+        <span>Histori Transaksi Ops Perusahaan</span>
+        <span style={{ color: tokens.colors.text.coolGray, fontSize: 12 }}>
+          {expanded ? 'Tutup' : `${rows.length} transaksi`}
+        </span>
+      </button>
+
+      {expanded ? (
+        rows.length > 0 ? (
+          <div style={{ display: 'grid', gap: tokens.spacing.sm }}>
+            {rows.map((item) => {
+              const keluar = item.arah === ARAH_TRANSAKSI.keluar
+              return (
+                <div
+                  key={item.id}
+                  className="motion-list-item"
+                  style={{
+                    display: 'grid',
+                    gridTemplateColumns: '1fr auto',
+                    gap: tokens.spacing.sm,
+                    padding: tokens.spacing.md,
+                    border: `1px solid ${tokens.colors.line.borderGray}`,
+                    borderRadius: tokens.radius.md,
+                    background: tokens.colors.surface.mistBlue,
+                  }}
+                >
+                  <div style={{ minWidth: 0 }}>
+                    <strong
+                      style={{
+                        display: 'block',
+                        color: tokens.colors.text.ink,
+                        fontSize: 12,
+                      }}
+                    >
+                      {item.kategori}
+                    </strong>
+                    <span
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        flexWrap: 'wrap',
+                        gap: 4,
+                        marginTop: 3,
+                        color: tokens.colors.text.slate,
+                        fontSize: 11,
+                      }}
+                    >
+                      {editingDateId === item.id ? (
+                        <input
+                          type="date"
+                          value={editingDateValue}
+                          autoFocus
+                          onChange={(event) => onDateChange(event.target.value)}
+                          onBlur={onSaveDate}
+                          onKeyDown={(event) => {
+                            if (event.key === 'Enter') {
+                              event.preventDefault()
+                              onSaveDate()
+                            }
+                            if (event.key === 'Escape') {
+                              event.preventDefault()
+                              onCancelDate()
+                            }
+                          }}
+                          style={{
+                            minHeight: 32,
+                            maxWidth: 150,
+                            border: `1px solid ${tokens.colors.line.lineBlue}`,
+                            borderRadius: tokens.radius.sm,
+                            padding: '0 8px',
+                            background: tokens.colors.surface.white,
+                            color: tokens.colors.text.ink,
+                            fontSize: 11,
+                            fontFamily: tokens.typography.family,
+                          }}
+                        />
+                      ) : (
+                        <button
+                          type="button"
+                          onClick={() => onStartEditDate(item)}
+                          title="Edit tanggal transaksi"
+                          style={{
+                            padding: 0,
+                            border: 0,
+                            borderBottom: `1px dashed ${tokens.colors.text.coolGray}`,
+                            background: 'transparent',
+                            color: tokens.colors.text.coolGray,
+                            fontSize: 11,
+                            fontFamily: tokens.typography.family,
+                            lineHeight: 1.35,
+                          }}
+                        >
+                          {formatDate(item.tanggal)}
+                        </button>
+                      )}
+                      <span>| {item.catatan || 'Tanpa catatan'}</span>
+                    </span>
+                  </div>
+                  <div
+                    style={{
+                      display: 'grid',
+                      justifyItems: 'end',
+                      gap: tokens.spacing.xs,
+                    }}
+                  >
+                    <strong
+                      style={{
+                        color: keluar
+                          ? tokens.colors.semantic.error
+                          : tokens.colors.semantic.success,
+                        fontSize: 12,
+                        textAlign: 'right',
+                        whiteSpace: 'nowrap',
+                      }}
+                    >
+                      {keluar ? '-' : '+'} {fmtIDR(item.nominal)}
+                    </strong>
+                    <button
+                      type="button"
+                      aria-label="Hapus transaksi"
+                      title="Hapus transaksi"
+                      onClick={() => onDelete(item)}
+                      style={{
+                        minHeight: 40,
+                        minWidth: 40,
+                        border: `1px solid ${tokens.colors.line.borderGray}`,
+                        borderRadius: tokens.radius.md,
+                        background: tokens.colors.surface.white,
+                        color: tokens.colors.text.coolGray,
+                        display: 'inline-grid',
+                        placeItems: 'center',
+                      }}
+                    >
+                      <TrashIcon color={tokens.colors.text.coolGray} />
+                    </button>
+                  </div>
+                </div>
+              )
+            })}
+          </div>
+        ) : (
+          <InlineEmpty title="Belum ada transaksi operasional perusahaan." />
+        )
+      ) : null}
+    </div>
   )
 }
 
@@ -460,7 +759,7 @@ function GlobalHistoryCard({
                       lineHeight: 1.35,
                     }}
                   >
-                    {item.tipe} | {item.catatan || 'Tanpa catatan'}
+                    {labelTipeTransaksi(item.tipe)} | {item.catatan || 'Tanpa catatan'}
                   </span>
                 </div>
                 <strong
@@ -742,11 +1041,20 @@ export default function Dashboard({ onNavigate }) {
   const [historyDateTo, setHistoryDateTo] = useState('')
   const [historySort, setHistorySort] = useState('Terbaru dulu')
   const [historyExpanded, setHistoryExpanded] = useState(false)
+  const [opsHistoryExpanded, setOpsHistoryExpanded] = useState(false)
+  const [opsDeleteTarget, setOpsDeleteTarget] = useState(null)
+  const [opsEditingDateId, setOpsEditingDateId] = useState('')
+  const [opsEditingDateValue, setOpsEditingDateValue] = useState('')
+  const [toast, setToast] = useState('')
 
-  useEffect(() => {
+  const reloadData = () => {
     setProyek(getProyek())
     setTransaksi(getTransaksi())
     setSettings(getSettings())
+  }
+
+  useEffect(() => {
+    reloadData()
   }, [])
 
   const yearOptions = useMemo(() => {
@@ -806,6 +1114,40 @@ export default function Dashboard({ onNavigate }) {
     setHistoryDateFrom('')
     setHistoryDateTo('')
     setHistoryExpanded(false)
+  }
+
+  const showToast = (message) => {
+    setToast(message)
+    window.setTimeout(() => setToast(''), 2000)
+  }
+
+  const startEditOpsTanggal = (item) => {
+    setOpsEditingDateId(item.id)
+    setOpsEditingDateValue(item.tanggal || new Date().toISOString().slice(0, 10))
+  }
+
+  const saveOpsTanggal = () => {
+    if (!opsEditingDateId) return
+    const currentItem = transaksi.find((item) => item.id === opsEditingDateId)
+    if (opsEditingDateValue && currentItem?.tanggal !== opsEditingDateValue) {
+      updateTransaksi(opsEditingDateId, { tanggal: opsEditingDateValue })
+      reloadData()
+      showToast('Tanggal diperbarui ✓')
+    }
+    setOpsEditingDateId('')
+    setOpsEditingDateValue('')
+  }
+
+  const cancelOpsTanggal = () => {
+    setOpsEditingDateId('')
+    setOpsEditingDateValue('')
+  }
+
+  const confirmDeleteOpsTransaksi = () => {
+    deleteTransaksi(opsDeleteTarget.id)
+    setOpsDeleteTarget(null)
+    reloadData()
+    showToast('Transaksi dihapus ✓')
   }
 
   useEffect(() => {
@@ -878,6 +1220,9 @@ export default function Dashboard({ onNavigate }) {
       item.proyekId === PROYEK_UMUM_ID ||
       item.tipe === TIPE_TRANSAKSI.opsPerusahaan
   )
+  const opsUmumHistoryRows = transaksi
+    .filter((item) => item.proyekId === PROYEK_UMUM_ID)
+    .sort((a, b) => String(b.tanggal).localeCompare(String(a.tanggal)))
   const totalOpsPerusahaan = sumNominal(
     opsPerusahaanTx.filter((item) => item.arah === ARAH_TRANSAKSI.keluar)
   )
@@ -1156,12 +1501,32 @@ export default function Dashboard({ onNavigate }) {
               : '-'
           }
         />
+        <OpsHistorySection
+          rows={opsUmumHistoryRows}
+          expanded={opsHistoryExpanded}
+          onToggle={() => setOpsHistoryExpanded((value) => !value)}
+          editingDateId={opsEditingDateId}
+          editingDateValue={opsEditingDateValue}
+          onStartEditDate={startEditOpsTanggal}
+          onDateChange={setOpsEditingDateValue}
+          onSaveDate={saveOpsTanggal}
+          onCancelDate={cancelOpsTanggal}
+          onDelete={setOpsDeleteTarget}
+        />
       </DashboardCard>
 
       <InsightCard
         message={insight.message}
         ctaLabel={insight.ctaLabel}
         onCta={insight.onCta}
+      />
+
+      <Toast visible={Boolean(toast)}>{toast || 'Transaksi tersimpan ✓'}</Toast>
+
+      <OpsDeleteSheet
+        transaksi={opsDeleteTarget}
+        onCancel={() => setOpsDeleteTarget(null)}
+        onConfirm={confirmDeleteOpsTransaksi}
       />
     </PageFrame>
   )

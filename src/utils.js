@@ -14,6 +14,17 @@ export const fmtShort = (n) => {
   return String(n)
 }
 
+export const labelTipeTransaksi = (tipe) => {
+  const labels = {
+    [TIPE_TRANSAKSI.modal]: 'Dana Talangan Pribadi',
+    [TIPE_TRANSAKSI.opsProyek]: 'Ops Proyek',
+    [TIPE_TRANSAKSI.opsPerusahaan]: 'Ops Perusahaan',
+    [TIPE_TRANSAKSI.penerimaan]: 'Penerimaan',
+    [TIPE_TRANSAKSI.pengembalian]: 'Pengembalian',
+  }
+  return labels[tipe] || tipe || '-'
+}
+
 export const generateProyekId = (
   existingProyek = [],
   jenis = JENIS_PROYEK.project,

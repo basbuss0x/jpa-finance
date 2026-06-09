@@ -7,7 +7,7 @@ import {
   STORAGE_KEYS,
   TIPE_TRANSAKSI,
 } from './constants'
-import { hitungProyek, sumNominalByTipe } from './utils'
+import { hitungProyek, labelTipeTransaksi, sumNominalByTipe } from './utils'
 
 const parseJSON = (value, fallback) => {
   try {
@@ -38,6 +38,13 @@ export const saveSettings = (data) =>
 export const addProyek = (item) => saveProyek([...getProyek(), item])
 
 export const addTransaksi = (item) => saveTransaksi([...getTransaksi(), item])
+
+export const updateTransaksi = (id, updatedFields) =>
+  saveTransaksi(
+    getTransaksi().map((item) =>
+      item.id === id ? { ...item, ...updatedFields } : item
+    )
+  )
 
 export const deleteTransaksi = (id) =>
   saveTransaksi(getTransaksi().filter((item) => item.id !== id))
@@ -157,7 +164,7 @@ const projectColumns = [
   { key: 'sumber', header: 'Sumber', width: 14 },
   { key: 'status', header: 'Status', width: 18 },
   { key: 'nilaiPesanan', header: 'Nilai Pesanan', width: 18, format: '"Rp"#,##0' },
-  { key: 'totalModal', header: 'Total Modal', width: 18, format: '"Rp"#,##0' },
+  { key: 'totalModal', header: 'Total Dana Talangan Pribadi', width: 24, format: '"Rp"#,##0' },
   { key: 'totalOps', header: 'Total Ops Proyek', width: 18, format: '"Rp"#,##0' },
   { key: 'potOps', header: 'Pot Ops Perusahaan', width: 20, format: '"Rp"#,##0' },
   { key: 'totalMasuk', header: 'Total Masuk', width: 18, format: '"Rp"#,##0' },
@@ -165,7 +172,7 @@ const projectColumns = [
   { key: 'profitBersih', header: 'Profit Bersih', width: 18, format: '"Rp"#,##0' },
   { key: 'sisaPiutang', header: 'Sisa Piutang', width: 18, format: '"Rp"#,##0' },
   { key: 'progressPct', header: 'Progress Bayar', width: 16, format: '0%' },
-  { key: 'sudahBalikModal', header: 'Balik Modal?', width: 14 },
+  { key: 'sudahBalikModal', header: 'Dana Talangan Pribadi Kembali?', width: 24 },
   { key: 'tanggalMulai', header: 'Tanggal Mulai', width: 16 },
   { key: 'catatan', header: 'Catatan', width: 34 },
 ]
@@ -265,7 +272,7 @@ export const exportExcel = async () => {
       jenisProyek: relatedProyek?.jenis || (item.proyekId === PROYEK_UMUM_ID ? 'Umum' : ''),
       tanggal: item.tanggal,
       arah: item.arah,
-      tipe: item.tipe,
+      tipe: labelTipeTransaksi(item.tipe),
       kategori: item.kategori,
       nominal: numberValue(item.nominal),
       catatan: item.catatan,
@@ -309,7 +316,7 @@ export const exportExcel = async () => {
       kpi: 'Dana Talangan Beredar',
       nilai: danaBeredar,
       status: danaBeredar > 0 ? 'Monitor' : 'OK',
-      catatan: 'Modal keluar dikurangi pengembalian.',
+      catatan: 'Dana Talangan Pribadi keluar dikurangi pengembalian.',
     },
     {
       kpi: 'Jumlah Proyek Aktif',
@@ -375,7 +382,7 @@ export const exportExcel = async () => {
       hasil: projectWithoutTxCount,
       status: projectWithoutTxCount === 0 ? 'PASS' : 'REVIEW',
       risiko: 'Proyek aktif mungkin belum mulai dicatat.',
-      saran: 'Jika proyek sudah berjalan, mulai catat penerimaan/modal/ops proyek.',
+      saran: 'Jika proyek sudah berjalan, mulai catat penerimaan/Dana Talangan Pribadi/ops proyek.',
     },
     {
       check: 'Kode proyek belum format REG/PRJ-YYYY-###',
